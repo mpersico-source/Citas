@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tablero de Control Operativo - Toyota Centro Motor</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js & DataLabels Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <!-- PapaParse for CSV -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- SheetJS for XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; }
+    .nav-tab.active { border-bottom: 3px solid #2563eb; color: #1d4ed8; font-weight: 700; }
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .chart-container { position: relative; width: 100%; height: 320px; }
+  </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-[1600px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-blue-600 text-white rounded-xl shadow-sm">
+          <i class="fa-solid fa-chart-line text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold leading-tight text-slate-900">Tablero de Control Operativo</h1>
+          <p class="text-xs text-slate-500 font-medium">Telefonía + Wise CX + Turnos Sucursal Colón</p>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <nav class="flex items-center gap-2 border-b md:border-none border-slate-200 overflow-x-auto">
+        <button onclick="switchTab('vision_general')" id="tab_vision_general" class="nav-tab active px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-globe"></i> 1. Visión General
+        </button>
+        <button onclick="switchTab('detalle_asesor')" id="tab_detalle_asesor" class="nav-tab px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-user-group"></i> 2. Detalle por Asesor
+        </button>
+        <button onclick="switchTab('turnos_colon')" id="tab_turnos_colon" class="nav-tab px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-calendar-check"></i> 3. Turnos y No-Show (Colón)
+        </button>
+      </nav>
+
+      <!-- DATA STATUS BADGES -->
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+        <span id="statusLlamadas" class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full border border-slate-200">
+          <i class="fa-solid fa-phone text-slate-400 mr-1"></i> Llamadas: <span id="cntLlamadas">0</span>
+        </span>
+        <span id="statusWise" class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full border border-slate-200">
+          <i class="fa-solid fa-comments text-slate-400 mr-1"></i> Wise: <span id="cntWise">0</span>
+        </span>
+        <span id="statusTurnos" class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full border border-slate-200">
+          <i class="fa-solid fa-calendar text-slate-400 mr-1"></i> Turnos: <span id="cntTurnos">0</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-[1600px] w-full mx-auto p-4 md:p-6 flex-1 flex flex-col gap-6">
+
+    <!-- UPLOAD DROPZONE / MANUAL FILE LOAD -->
+    <section id="dropzoneSection" class="bg-white rounded-2xl p-4 border border-dashed border-blue-300 shadow-sm bg-gradient-to-r from-blue-50/50 to-slate-50 transition-all">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Carga e Integración de Archivos</h3>
+            <p class="text-xs text-slate-500">Seleccioná o arrastrá los tres archivos juntos (<code class="bg-slate-200 text-slate-700 px-1 rounded">llamadas.csv</code>, <code class="bg-slate-200 text-slate-700 px-1 rounded">wise.csv</code>, <code class="bg-slate-200 text-slate-700 px-1 rounded">turnos.xlsx</code>)</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <input type="file" id="fileInput" multiple accept=".csv, .xlsx, .xls" class="hidden" onchange="handleFileSelect(event)">
+          <button onclick="document.getElementById('fileInput').click()" class="w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-folder-open"></i> Seleccionar Archivos
+          </button>
+          <span id="autoLoadMsg" class="text-xs font-semibold text-blue-600 flex items-center gap-1">
+            <i class="fa-solid fa-spinner fa-spin"></i> Verificando autocarga...
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BARRA DE FILTROS GLOBAL -->
+    <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">Período:</span>
+        <button onclick="setPreset('hoy')" id="btnHoy" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">Hoy</button>
+        <button onclick="setPreset('ayer')" id="btnAyer" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition-all">Ayer</button>
+        <button onclick="setPreset('semana')" id="btnSemana" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">Última Semana</button>
+        <button onclick="setPreset('mes_actual')" id="btnMesActual" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">Mes Actual</button>
+        <button onclick="setPreset('mes_anterior')" id="btnMesAnterior" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">Mes Anterior</button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4">
+        <!-- Selector de Mes -->
+        <div class="flex items-center gap-2 border-l pl-4 border-slate-200">
+          <label for="selectMes" class="text-xs font-bold text-slate-500 uppercase">Mes:</label>
+          <select id="selectMes" onchange="filtrarPorMes(this.value)" class="text-xs font-semibold border rounded-xl px-2.5 py-1.5 bg-slate-50 border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Todos / Personalizado</option>
+            <option value="01">Enero</option>
+            <option value="02">Febrero</option>
+            <option value="03">Marzo</option>
+            <option value="04">Abril</option>
+            <option value="05">Mayo</option>
+            <option value="06">Junio</option>
+            <option value="07">Julio</option>
+            <option value="08">Agosto</option>
+            <option value="09">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+          </select>
+        </div>
+
+        <!-- Rango Fechas -->
+        <div class="flex items-center gap-2 border-l pl-4 border-slate-200">
+          <span class="text-xs text-slate-500 font-bold">Desde:</span>
+          <input type="date" id="fechaDesde" onchange="applyCustomDates()" class="border text-xs rounded-xl px-2.5 py-1.5 bg-slate-50 border-slate-300 font-medium">
+          <span class="text-xs text-slate-500 font-bold">Hasta:</span>
+          <input type="date" id="fechaHasta" onchange="applyCustomDates()" class="border text-xs rounded-xl px-2.5 py-1.5 bg-slate-50 border-slate-300 font-medium">
+        </div>
+
+        <!-- Asesores Dropdown (Sólo asesores presentes en Wise) -->
+        <div class="flex items-center gap-2 border-l pl-4 border-slate-200">
+          <span class="text-xs font-bold text-slate-500 uppercase">Asesor:</span>
+          <select id="selectAsesor" onchange="procesarYActualizar()" class="text-xs font-semibold border rounded-xl px-2.5 py-1.5 bg-slate-50 border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[180px]">
+            <option value="TODOS">Todos los Asesores</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 1: VISIÓN GENERAL -->
+    <!-- ========================================================================= -->
+    <div id="content_vision_general" class="tab-content flex flex-col gap-6">
+      
+      <!-- TARJETAS DE MÉTRICAS (KPIs) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
+        
+        <!-- 1. Vol. Casos Creados -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Vol. Casos Creados</span>
+          <div id="kpiVolCasos" class="text-xl font-extrabold text-blue-600 my-1">0</div>
+          <span class="text-[10px] text-slate-500 font-medium truncate">Telefonía + Digital Wise</span>
+        </div>
+
+        <!-- 2. Conversión a Turnos -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Conversión a Turnos</span>
+          <div id="kpiConversion" class="text-xl font-extrabold text-purple-600 my-1">0%</div>
+          <span id="kpiConversionSub" class="text-[10px] text-slate-500 font-medium truncate">0 turnos / 0 gestiones</span>
+        </div>
+
+        <!-- 3. Llamadas Atendidas -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Llamadas Atendidas</span>
+          <div id="kpiAtendidas" class="text-xl font-extrabold text-emerald-600 my-1">0</div>
+          <span id="kpiAtendidasPct" class="text-[10px] text-emerald-600 font-bold">0%</span>
+        </div>
+
+        <!-- 4. Llamadas Abandonadas -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Llamadas Abandonadas</span>
+          <div id="kpiAbandonadas" class="text-xl font-extrabold text-rose-600 my-1">0</div>
+          <span id="kpiAbandonadasPct" class="text-[10px] text-rose-600 font-bold">0%</span>
+        </div>
+
+        <!-- 5. Nivel Servicio (SLA) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Nivel Servicio (SLA)</span>
+          <div id="kpiSLA" class="text-xl font-extrabold text-indigo-600 my-1">0%</div>
+          <span class="text-[10px] text-slate-500 font-medium truncate">&lt;= 20s espera</span>
+        </div>
+
+        <!-- 6. Tiempo Resp. Prom. -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tiempo Resp. Prom.</span>
+          <div id="kpiTiempoEspera" class="text-xl font-extrabold text-amber-600 my-1">00:00</div>
+          <span class="text-[10px] text-slate-500 font-medium truncate">Espera en cola</span>
+        </div>
+
+        <!-- 7. AHT Llamadas -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">AHT Llamadas</span>
+          <div id="kpiAHTLlamadas" class="text-xl font-extrabold text-teal-600 my-1">00:00</div>
+          <span class="text-[10px] text-slate-500 font-medium truncate">Tiempo en llamada</span>
+        </div>
+
+        <!-- 8. Casos Wise Atendidos -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Casos Wise</span>
+          <div id="kpiCasosWise" class="text-xl font-extrabold text-sky-600 my-1">0</div>
+          <span class="text-[10px] text-slate-500 font-medium truncate">Atendidos digital</span>
+        </div>
+
+        <!-- 9. AHT Wise -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">AHT Wise</span>
+          <div id="kpiAHTWise" class="text-xl font-extrabold text-cyan-600 my-1">00:00</div>
+          <span class="text-[10px] text-slate-500 font-medium truncate">Gestión por caso</span>
+        </div>
+
+      </div>
+
+      <!-- GRÁFICOS TAB 1 (Ancho Completo uno debajo de otro) -->
+
+      <!-- GRÁFICO 1: Llamadas Ingresadas y SLA % Diario + Comparativa Mensual -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-phone-volume text-blue-600"></i> Llamadas Ingresadas y SLA % Diario
+            </h2>
+            <span class="text-[11px] text-slate-400 font-medium">Por Día (Último Mes)</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartLlamadasSLA"></canvas>
+          </div>
+        </div>
+
+        <!-- Evolutivo Mensual Side-Block -->
+        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Evolutivo Mensual SLA</h3>
+              <i class="fa-solid fa-calendar-days text-slate-400 text-xs"></i>
+            </div>
+            <p class="text-[11px] text-slate-500 mb-3">Total acumulado histórico por mes</p>
+            <div class="h-44 relative">
+              <canvas id="chartSlamensual"></canvas>
+            </div>
+          </div>
+          <div id="cardSlaDelta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-600">Comparativa SLA:</span>
+            <span id="slaDeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700">+0.0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRÁFICO 2: Llamadas Atendidas vs Abandonadas por Día + Mensual -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-bar text-emerald-600"></i> Llamadas Atendidas vs Abandonadas por Día
+            </h2>
+            <span class="text-[11px] text-slate-400 font-medium">Distribución de Ingreso</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartAtendidasAbandonadas"></canvas>
+          </div>
+        </div>
+
+        <!-- Evolutivo Mensual Side-Block -->
+        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Distribución Mensual</h3>
+              <i class="fa-solid fa-chart-pie text-slate-400 text-xs"></i>
+            </div>
+            <p class="text-[11px] text-slate-500 mb-3">Atendidas vs Abandonadas por mes</p>
+            <div class="h-48 relative">
+              <canvas id="chartAtendidasAbandonadasMensual"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRÁFICO 3: Wise CX: Casos Atendidos por Día y AHT Promedio + Mensual -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-comments text-cyan-600"></i> Canal Digital: Casos Atendidos por Día y AHT
+            </h2>
+            <span class="text-[11px] text-slate-400 font-medium">Volumen Digital vs Tiempo Operativo</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartWiseAHT"></canvas>
+          </div>
+        </div>
+
+        <!-- Evolutivo Mensual Side-Block -->
+        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Evolución Digital Mensual</h3>
+              <i class="fa-solid fa-clock text-slate-400 text-xs"></i>
+            </div>
+            <p class="text-[11px] text-slate-500 mb-3">Casos e AHT Promedio por mes</p>
+            <div class="h-48 relative">
+              <canvas id="chartWiseAHTMensual"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 2: DETALLE POR ASESOR -->
+    <!-- ========================================================================= -->
+    <div id="content_detalle_asesor" class="tab-content hidden flex flex-col gap-6">
+      
+      <!-- GRÁFICO: Evolución Diaria Wise CX vs Llamadas Ingresadas + Side-Block Mensual -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-blue-600"></i> Evolución Diaria: Wise CX vs Llamadas Ingresadas
+            </h2>
+            <span class="text-[11px] text-slate-400 font-medium">Llamadas Asesores Wise &amp; Casos Digitales</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartEvolucionWiseLlamadas"></canvas>
+          </div>
+        </div>
+
+        <!-- Evolución Mensual Side Block -->
+        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Comparativo Mensual</h3>
+          <p class="text-[11px] text-slate-500 mb-3">Wise vs Llamadas Atendidas</p>
+          <div class="h-52 relative">
+            <canvas id="chartEvolucionWiseLlamadasMensual"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARTICIPACIÓN POR ASESOR (BLOQUE RECTANGULAR HORIZONTAL ANCHO COMPLETO) -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-purple-600"></i> Participación por Asesor
+            </h2>
+            <p class="text-xs text-slate-500">% del total de gestiones combinadas (Llamadas Atendidas + Casos Wise)</p>
+          </div>
+        </div>
+
+        <!-- Rectángulo 1: Total Gestiones -->
+        <div class="w-full bg-slate-900 text-white rounded-t-2xl py-3 px-6 text-center border-b border-slate-700 shadow-inner">
+          <span class="text-xs uppercase tracking-widest font-bold text-slate-400 block">Total Gestiones Combinadas</span>
+          <span id="participacionTotalNum" class="text-3xl font-extrabold text-blue-400">0</span>
+        </div>
+
+        <!-- Rectángulo 2: Distribución Proporcional por Asesor -->
+        <div id="participacionBarContainer" class="w-full h-16 bg-slate-100 rounded-b-2xl overflow-hidden flex shadow-inner border border-slate-200">
+          <!-- Dinámicamente poblado con barras de asesores -->
+        </div>
+
+        <!-- Detalle de Selección / Hover de Asesor -->
+        <div id="participacionDetailCard" class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 transition-all flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div id="partAvatar" class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+              -
+            </div>
+            <div>
+              <span id="partAsesorNombre" class="text-sm font-extrabold text-slate-800 block">Pasá el cursor sobre un segmento</span>
+              <span id="partAsesorPct" class="text-xs font-semibold text-purple-600">--% del total</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-6">
+            <div class="text-center">
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Total Gestiones</span>
+              <span id="partTotalGestiones" class="text-base font-extrabold text-slate-800">0</span>
+            </div>
+            <div class="text-center border-l pl-6 border-slate-200">
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Llamadas Atendidas</span>
+              <span id="partTotalLlamadas" class="text-base font-extrabold text-blue-600">0</span>
+            </div>
+            <div class="text-center border-l pl-6 border-slate-200">
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Casos Wise</span>
+              <span id="partTotalWise" class="text-base font-extrabold text-cyan-600">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA DETALLADA POR ASESOR -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-table-list text-slate-600"></i> Métricas Detalladas por Asesor
+          </h2>
+          <span class="text-xs font-medium text-slate-400">Ordenado por Total de Gestiones</span>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="p-3">Asesor</th>
+                <th class="p-3 text-right">Llamadas Atendidas</th>
+                <th class="p-3 text-right">Prom. Llam/Día</th>
+                <th class="p-3 text-right">Vel. Atención (Espera)</th>
+                <th class="p-3 text-right">SLA %</th>
+                <th class="p-3 text-right">AHT Llamadas</th>
+                <th class="p-3 text-right">Casos Wise</th>
+                <th class="p-3 text-right">Casos Wise/Día</th>
+                <th class="p-3 text-right">AHT Wise</th>
+                <th class="p-3 text-right font-extrabold text-blue-700 bg-blue-50/50">Total Gestiones</th>
+                <th class="p-3 text-right font-extrabold text-purple-700 bg-purple-50/50">% Participación</th>
+              </tr>
+            </thead>
+            <tbody id="tablaAsesoresBody" class="divide-y divide-slate-100 text-slate-700 font-medium">
+              <!-- Filas dinámicas -->
+              <tr>
+                <td colspan="11" class="p-8 text-center text-slate-400 italic">No hay datos para mostrar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 3: TURNOS Y NO-SHOW (COLÓN) -->
+    <!-- ========================================================================= -->
+    <div id="content_turnos_colon" class="tab-content hidden flex flex-col gap-6">
+      
+      <!-- TARJETAS DE ASISTENCIA Y NO-SHOW -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- 1. Promedio / Total Agendados -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Agendados</span>
+          <div id="kpiTurnosTotal" class="text-2xl font-extrabold text-slate-800 my-1">0</div>
+          <span class="text-xs text-slate-500 font-medium">Total en el período</span>
+        </div>
+
+        <!-- 2. Sí Vinieron (Asistieron) -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between border-l-4 border-l-emerald-500">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Sí Vinieron (Asistieron)</span>
+          <div id="kpiTurnosAsistieron" class="text-2xl font-extrabold text-emerald-600 my-1">0</div>
+          <span id="kpiTurnosAsistieronPct" class="text-xs text-emerald-600 font-bold">0% del total</span>
+        </div>
+
+        <!-- 3. Faltaron (No-Show) -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between border-l-4 border-l-rose-500">
+          <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Faltaron (No-Show)</span>
+          <div id="kpiTurnosNoShow" class="text-2xl font-extrabold text-rose-600 my-1">0</div>
+          <span id="kpiTurnosNoShowPct" class="text-xs text-rose-600 font-bold">0% ausentismo</span>
+        </div>
+
+        <!-- 4. Comparativa con período anterior -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Var. Ausentismo vs Mes Ant.</span>
+          <div id="kpiTurnosDelta" class="text-2xl font-extrabold text-slate-700 my-1">0.0%</div>
+          <span class="text-xs text-slate-500 font-medium">Diferencia en puntos %</span>
+        </div>
+
+      </div>
+
+      <!-- GRÁFICO: Evolución Diaria Turnos y No-Show + Side-Block Mensual -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-calendar-xmark text-rose-600"></i> Evolución Diaria: Turnos Agendados y No-Show (Sucursal Colón)
+            </h2>
+            <span class="text-[11px] text-slate-400 font-medium">Asistencias vs Ausentismo</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartTurnosNoShow"></canvas>
+          </div>
+        </div>
+
+        <!-- Side-Block Evolutivo Mensual -->
+        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Evolución Mensual No-Show</h3>
+          <p class="text-[11px] text-slate-500 mb-3">Tasa de ausentismo por mes</p>
+          <div class="h-52 relative">
+            <canvas id="chartTurnosNoShowMensual"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400 font-medium">
+    Tablero de Control Operativo &copy; 2026 - Toyota Centro Motor
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT / LOGIC SECTION -->
+  <!-- ========================================================================= -->
+  <script>
+    // Register ChartDataLabels plugin globally
+    Chart.register(ChartDataLabels);
+
+    // GLOBAL CONSTANTS & STATE
+    const SLA_META_SEGUNDOS = 20;
+
+    let datosLlamadas = [];
+    let datosWise = [];
+    let datosTurnos = {
+      creados: [],    // [{fecha, workOrder}]
+      asistieron: [], // [{fecha, workOrder}]
+      noshow: []      // [{fecha}]
+    };
+
+    let asesoresWiseValidos = []; // Names present in Wise
+
+    // CHART REFERENCES
+    let chartLlamadasSLAInstance = null;
+    let chartSlaMensualInstance = null;
+    let chartAtendidasAbandonadasInstance = null;
+    let chartAtendidasAbandonadasMensualInstance = null;
+    let chartWiseAHTInstance = null;
+    let chartWiseAHTMensualInstance = null;
+
+    let chartEvolucionWiseLlamadasInstance = null;
+    let chartEvolucionWiseLlamadasMensualInstance = null;
+
+    let chartTurnosNoShowInstance = null;
+    let chartTurnosNoShowMensualInstance = null;
+
+    // INITIALIZATION & AUTOLOAD
+    window.addEventListener('DOMContentLoaded', () => {
+      intentarAutocarga();
+    });
+
+    // SWITCH TABS
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+      document.getElementById('content_' + tabId).classList.remove('hidden');
+      document.getElementById('tab_' + tabId).classList.add('active');
+
+      // Refresh charts layout on tab switch
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 50);
+    }
+
+    // AUTOLOAD TRY (2 second timeout then show manual upload option)
+    function intentarAutocarga() {
+      const msg = document.getElementById('autoLoadMsg');
+      let loadedCount = 0;
+
+      const timer = setTimeout(() => {
+        if (loadedCount < 3) {
+          msg.innerHTML = '<span class="text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i> Autocarga no detectada. Usá la carga manual.</span>';
+        }
+      }, 2000);
+
+      Promise.allSettled([
+        fetch('./llamadas.csv').then(r => r.ok ? r.text() : Promise.reject()),
+        fetch('./wise.csv').then(r => r.ok ? r.text() : Promise.reject()),
+        fetch('./turnos.xlsx').then(r => r.ok ? r.arrayBuffer() : Promise.reject())
+      ]).then(results => {
+        clearTimeout(timer);
+        let count = 0;
+        if (results[0].status === 'fulfilled') { parseCSVLlamadas(results[0].value); count++; }
+        if (results[1].status === 'fulfilled') { parseCSVWise(results[1].value); count++; }
+        if (results[2].status === 'fulfilled') { parseXLSXTurnos(results[2].value); count++; }
+
+        if (count > 0) {
+          msg.innerHTML = '<span class="text-emerald-600"><i class="fa-solid fa-circle-check"></i> Archivos autocargados con éxito.</span>';
+          initAppWithData();
+        } else {
+          msg.innerHTML = '<span class="text-slate-400">Listos para carga manual.</span>';
+        }
+      }).catch(() => {
+        clearTimeout(timer);
+        msg.innerHTML = '<span class="text-slate-400">Listos para carga manual.</span>';
+      });
+    }
+
+    // MANUAL FILE UPLOAD HANDLER
+    function handleFileSelect(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      Array.from(files).forEach(file => {
+        const name = file.name.toLowerCase();
+        const reader = new FileReader();
+
+        if (name.includes('llamadas')) {
+          reader.onload = (e) => { parseCSVLlamadas(e.target.result); checkAndRender(); };
+          reader.readAsText(file);
+        } else if (name.includes('wise')) {
+          reader.onload = (e) => { parseCSVWise(e.target.result); checkAndRender(); };
+          reader.readAsText(file);
+        } else if (name.includes('turnos')) {
+          reader.onload = (e) => { parseXLSXTurnos(e.target.result); checkAndRender(); };
+          reader.readAsArrayBuffer(file);
+        }
+      });
+    }
+
+    function checkAndRender() {
+      initAppWithData();
+      document.getElementById('autoLoadMsg').innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Archivo(s) actualizado(s).</span>';
+    }
+
+    // PARSER: llamadas.csv
+    function parseCSVLlamadas(csvText) {
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          datosLlamadas = [];
+          results.data.forEach(row => {
+            const ani = String(row.QCI_ANI || '').trim();
+            // RULE: Exclude internal calls (ANI <= 3 digits)
+            if (ani.length <= 3) return;
+
+            const fechaObj = parseFechaCompleta(row.inicio);
+            if (!fechaObj) return;
+
+            let agente = String(row.nombre_agente || '').trim();
+            // UNIFY Celeste Cornejo -> Rocio Cornejo
+            if (agente.toLowerCase().includes('celeste cornejo')) agente = 'Rocio Cornejo';
+
+            const esAtendida = String(row.QCI_ANSWERED || '').toLowerCase() === 'yes';
+
+            datosLlamadas.push({
+              fecha: fechaObj,
+              fechaStr: formatDateKey(fechaObj),
+              agente: agente,
+              atendida: esAtendida,
+              esperaSeg: parseFloat(row.QCI_DURATION) || 0,
+              duracionSeg: parseFloat(row.QCI_AGENT_DURATION) || 0
+            });
+          });
+          document.getElementById('cntLlamadas').innerText = datosLlamadas.length;
+        }
+      });
+    }
+
+    // PARSER: wise.csv
+    function parseCSVWise(csvText) {
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          datosWise = [];
+          const asesoresSet = new Set();
+
+          results.data.forEach(row => {
+            let usuario = String(row.Usuario || row.usuario || '').trim();
+            if (!usuario) return;
+
+            // UNIFY Celeste Cornejo -> Rocio Cornejo
+            if (usuario.toLowerCase().includes('celeste cornejo')) usuario = 'Rocio Cornejo';
+
+            asesoresSet.add(usuario);
+
+            // Use 'Día' column
+            const diaStr = row['Día'] || row['Dia'] || row['día'] || row['dia'];
+            const fechaObj = parseFechaCompleta(diaStr);
+            if (!fechaObj) return;
+
+            const casos = parseInt(row.Casos || row.casos || 0) || 0;
+            const ahtSeg = parseAHTTextToSeconds(row['TMO (AHT) por Caso'] || row['TMO (AHT) por caso'] || '0');
+
+            datosWise.push({
+              fecha: fechaObj,
+              fechaStr: formatDateKey(fechaObj),
+              usuario: usuario,
+              casos: casos,
+              ahtSeg: ahtSeg
+            });
+          });
+
+          asesoresWiseValidos = Array.from(asesoresSet).sort();
+          document.getElementById('cntWise').innerText = datosWise.length;
+          updateAsesoresDropdown();
+        }
+      });
+    }
+
+    // PARSER: turnos.xlsx
+    function parseXLSXTurnos(arrayBuffer) {
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      datosTurnos = { creados: [], asistieron: [], noshow: [] };
+
+      // Maps for deduplication: key = workOrder
+      const creadosMap = new Map();
+      const asistieronMap = new Map();
+
+      // Skip header row if exists
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length === 0) continue;
+
+        // Col 1 & 2: Turnos Creados
+        const fechaCreacion = parseFechaCompleta(row[0]);
+        const wo1 = row[1] ? String(row[1]).trim() : null;
+        if (fechaCreacion && wo1 && !creadosMap.has(wo1)) {
+          creadosMap.set(wo1, { fecha: fechaCreacion, fechaStr: formatDateKey(fechaCreacion), workOrder: wo1 });
+        }
+
+        // Col 3 & 4: Turnos Asistieron
+        const fechaRecepcion = parseFechaCompleta(row[2]);
+        const wo2 = row[3] ? String(row[3]).trim() : null;
+        if (fechaRecepcion && wo2 && !asistieronMap.has(wo2)) {
+          asistieronMap.set(wo2, { fecha: fechaRecepcion, fechaStr: formatDateKey(fechaRecepcion), workOrder: wo2 });
+        }
+
+        // Col 5: No Show
+        const fechaNoShow = parseFechaCompleta(row[4]);
+        if (fechaNoShow) {
+          datosTurnos.noshow.push({ fecha: fechaNoShow, fechaStr: formatDateKey(fechaNoShow) });
+        }
+      }
+
+      datosTurnos.creados = Array.from(creadosMap.values());
+      datosTurnos.asistieron = Array.from(asistieronMap.values());
+
+      const totalTurnosReg = datosTurnos.creados.length + datosTurnos.asistieron.length + datosTurnos.noshow.length;
+      document.getElementById('cntTurnos').innerText = totalTurnosReg;
+    }
+
+    // POPULATE ADVISOR DROPDOWN (ONLY WISE ADVISORS)
+    function updateAsesoresDropdown() {
+      const select = document.getElementById('selectAsesor');
+      select.innerHTML = '<option value="TODOS">Todos los Asesores</option>';
+      asesoresWiseValidos.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a;
+        opt.textContent = a;
+        select.appendChild(opt);
+      });
+    }
+
+    // INITIALIZE DATA & DEFAULT PRESET "AYER"
+    function initAppWithData() {
+      // DEFAULT: Select "Ayer"
+      setPreset('ayer');
+    }
+
+    // DATE HELPER UTILITIES
+    function parseFechaCompleta(val) {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+
+      if (typeof val === 'number') {
+        // Excel serial date
+        return new Date(Math.round((val - 25569) * 86400 * 1000));
+      }
+
+      const str = String(val).trim();
+      if (!str) return null;
+
+      // Handle DD/MM/YYYY or YYYY-MM-DD
+      if (str.includes('/')) {
+        const parts = str.split(' ')[0].split('/');
+        if (parts.length === 3) {
+          // If DD/MM/YYYY
+          if (parts[0].length === 2 && parts[2].length === 4) {
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+          }
+        }
+      } else if (str.includes('-')) {
+        const parts = str.split(' ')[0].split('-');
+        if (parts.length === 3) {
+          if (parts[0].length === 4) {
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+          } else {
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+          }
+        }
+      }
+      const d = new Date(str);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatDateKey(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function parseAHTTextToSeconds(text) {
+      if (!text) return 0;
+      let total = 0;
+      const mMatch = text.match(/(\d+)\s*m/);
+      const sMatch = text.match(/(\d+)\s*s/);
+      if (mMatch) total += parseInt(mMatch[1]) * 60;
+      if (sMatch) total += parseInt(sMatch[1]);
+      if (!mMatch && !sMatch) {
+        const parts = text.split(':');
+        if (parts.length === 2) total = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        else if (parts.length === 3) total = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+        else total = parseFloat(text) || 0;
+      }
+      return total;
+    }
+
+    function secondsToMMSS(sec) {
+      if (isNaN(sec) || sec <= 0) return '00:00';
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    // PRESET FILTERS
+    function setPreset(type) {
+      const buttons = ['btnHoy', 'btnAyer', 'btnSemana', 'btnMesActual', 'btnMesAnterior'];
+      buttons.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all';
+      });
+
+      const activeBtn = document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1));
+      if (activeBtn) activeBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition-all';
+
+      document.getElementById('selectMes').value = '';
+
+      // Reference current date = 2026-09-30 (or system date)
+      let refDate = new Date(2026, 8, 30); // 30 Sept 2026
+
+      let desde = new Date(refDate);
+      let hasta = new Date(refDate);
+
+      if (type === 'hoy') {
+        // Same day
+      } else if (type === 'ayer') {
+        desde.setDate(refDate.getDate() - 1);
+        hasta.setDate(refDate.getDate() - 1);
+      } else if (type === 'semana') {
+        desde.setDate(refDate.getDate() - 7);
+      } else if (type === 'mes_actual') {
+        desde = new Date(refDate.getFullYear(), refDate.getMonth(), 1);
+        hasta = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0);
+      } else if (type === 'mes_anterior') {
+        desde = new Date(refDate.getFullYear(), refDate.getMonth() - 1, 1);
+        hasta = new Date(refDate.getFullYear(), refDate.getMonth(), 0);
+      }
+
+      document.getElementById('fechaDesde').value = formatDateKey(desde);
+      document.getElementById('fechaHasta').value = formatDateKey(hasta);
+
+      procesarYActualizar();
+    }
+
+    function filtrarPorMes(mesNum) {
+      if (!mesNum) return;
+      const anio = 2026;
+      const desde = new Date(anio, parseInt(mesNum) - 1, 1);
+      const hasta = new Date(anio, parseInt(mesNum), 0);
+
+      document.getElementById('fechaDesde').value = formatDateKey(desde);
+      document.getElementById('fechaHasta').value = formatDateKey(hasta);
+
+      procesarYActualizar();
+    }
+
+    function applyCustomDates() {
+      procesarYActualizar();
+    }
+
+    // MAIN FILTERING & RENDERING LOGIC
+    function procesarYActualizar() {
+      const desdeStr = document.getElementById('fechaDesde').value;
+      const hastaStr = document.getElementById('fechaHasta').value;
+      const asesorSel = document.getElementById('selectAsesor').value;
+
+      const fechaDesde = desdeStr ? new Date(desdeStr + 'T00:00:00') : null;
+      const fechaHasta = hastaStr ? new Date(hastaStr + 'T23:59:59') : null;
+
+      // Filtered datasets
+      const llamadasFiltradas = datosLlamadas.filter(r => {
+        if (fechaDesde && r.fecha < fechaDesde) return false;
+        if (fechaHasta && r.fecha > fechaHasta) return false;
+        if (asesorSel !== 'TODOS' && r.agente !== asesorSel) return false;
+        return true;
+      });
+
+      const wiseFiltrado = datosWise.filter(r => {
+        if (fechaDesde && r.fecha < fechaDesde) return false;
+        if (fechaHasta && r.fecha > fechaHasta) return false;
+        if (asesorSel !== 'TODOS' && r.usuario !== asesorSel) return false;
+        return true;
+      });
+
+      const turnosCreadosFiltrados = datosTurnos.creados.filter(r => {
+        if (fechaDesde && r.fecha < fechaDesde) return false;
+        if (fechaHasta && r.fecha > fechaHasta) return false;
+        return true;
+      });
+
+      const turnosAsistieronFiltrados = datosTurnos.asistieron.filter(r => {
+        if (fechaDesde && r.fecha < fechaDesde) return false;
+        if (fechaHasta && r.fecha > fechaHasta) return false;
+        return true;
+      });
+
+      const turnosNoShowFiltrados = datosTurnos.noshow.filter(r => {
+        if (fechaDesde && r.fecha < fechaDesde) return false;
+        if (fechaHasta && r.fecha > fechaHasta) return false;
+        return true;
+      });
+
+      // UPDATE KPIS TAB 1
+      const atendidas = llamadasFiltradas.filter(r => r.atendida).length;
+      const abandonadas = llamadasFiltradas.filter(r => !r.atendida).length;
+      const totalLlamadas = atendidas + abandonadas;
+
+      const totalCasosWise = wiseFiltrado.reduce((acc, r) => acc + r.casos, 0);
+      const totalGestionesAtendidas = atendidas + totalCasosWise;
+
+      const totalTurnosCreados = turnosCreadosFiltrados.length;
+      const conversionPct = totalGestionesAtendidas > 0 ? ((totalTurnosCreados / totalGestionesAtendidas) * 100).toFixed(1) : '0.0';
+
+      const dentroSLA = llamadasFiltradas.filter(r => r.atendida && r.esperaSeg <= SLA_META_SEGUNDOS).length;
+      const slaPct = totalLlamadas > 0 ? ((dentroSLA / totalLlamadas) * 100).toFixed(1) : '0.0';
+
+      // Espera promedio
+      const totalEsperaSeg = llamadasFiltradas.reduce((acc, r) => acc + r.esperaSeg, 0);
+      const promEsperaSeg = totalLlamadas > 0 ? totalEsperaSeg / totalLlamadas : 0;
+
+      // AHT Llamadas
+      const totalDuracionLlamadas = llamadasFiltradas.filter(r => r.atendida).reduce((acc, r) => acc + r.duracionSeg, 0);
+      const ahtLlamadasSeg = atendidas > 0 ? totalDuracionLlamadas / atendidas : 0;
+
+      // AHT Wise
+      const totalAhtWiseSeg = wiseFiltrado.reduce((acc, r) => acc + (r.ahtSeg * r.casos), 0);
+      const ahtWiseSeg = totalCasosWise > 0 ? totalAhtWiseSeg / totalCasosWise : 0;
+
+      // Render KPIs DOM
+      document.getElementById('kpiVolCasos').innerText = totalGestionesAtendidas;
+      document.getElementById('kpiConversion').innerText = conversionPct + '%';
+      document.getElementById('kpiConversionSub').innerText = `${totalTurnosCreados} turnos / ${totalGestionesAtendidas} gestiones`;
+
+      document.getElementById('kpiAtendidas').innerText = atendidas;
+      document.getElementById('kpiAtendidasPct').innerText = totalLlamadas > 0 ? ((atendidas / totalLlamadas) * 100).toFixed(1) + '%' : '0%';
+
+      document.getElementById('kpiAbandonadas').innerText = abandonadas;
+      document.getElementById('kpiAbandonadasPct').innerText = totalLlamadas > 0 ? ((abandonadas / totalLlamadas) * 100).toFixed(1) + '%' : '0%';
+
+      document.getElementById('kpiSLA').innerText = slaPct + '%';
+      document.getElementById('kpiTiempoEspera').innerText = secondsToMMSS(promEsperaSeg);
+      document.getElementById('kpiAHTLlamadas').innerText = secondsToMMSS(ahtLlamadasSeg);
+      document.getElementById('kpiCasosWise').innerText = totalCasosWise;
+      document.getElementById('kpiAHTWise').innerText = secondsToMMSS(ahtWiseSeg);
+
+      // TAB 3 KPIS
+      const totalAsistieron = turnosAsistieronFiltrados.length;
+      const totalNoShow = turnosNoShowFiltrados.length;
+      const totalAgendados = totalAsistieron + totalNoShow;
+
+      const asistieronPct = totalAgendados > 0 ? ((totalAsistieron / totalAgendados) * 100).toFixed(1) : '0.0';
+      const noShowPct = totalAgendados > 0 ? ((totalNoShow / totalAgendados) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('kpiTurnosTotal').innerText = totalAgendados;
+      document.getElementById('kpiTurnosAsistieron').innerText = totalAsistieron;
+      document.getElementById('kpiTurnosAsistieronPct').innerText = `${asistieronPct}% del total`;
+      document.getElementById('kpiTurnosNoShow').innerText = totalNoShow;
+      document.getElementById('kpiTurnosNoShowPct').innerText = `${noShowPct}% ausentismo`;
+
+      // RENDER ALL CHARTS & TABLES
+      renderChartsTab1(llamadasFiltradas, wiseFiltrado);
+      renderChartsTab2(llamadasFiltradas, wiseFiltrado);
+      renderChartsTab3(turnosAsistieronFiltrados, turnosNoShowFiltrados);
+
+      renderTablaAsesores(llamadasFiltradas, wiseFiltrado, fechaDesde, fechaHasta);
+      renderParticipacionAsesor(llamadasFiltradas, wiseFiltrado);
+    }
+
+    // =========================================================================
+    // CHART RENDERING FUNCTIONS
+    // =========================================================================
+
+    // TAB 1 CHARTS
+    function renderChartsTab1(llamadasData, wiseData) {
+      // DEFAULT RANGE RULE: Daily charts by default display full month unless custom date selected
+      const agrupadoLlamadas = agruparLlamadasPorDia(llamadasData);
+
+      // 1. CHART: Llamadas Ingresadas y SLA % Diario
+      const ctx1 = document.getElementById('chartLlamadasSLA').getContext('2d');
+      if (chartLlamadasSLAInstance) chartLlamadasSLAInstance.destroy();
+
+      chartLlamadasSLAInstance = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: agrupadoLlamadas.diasNum,
+          datasets: [
+            {
+              type: 'line',
+              label: 'SLA %',
+              data: agrupadoLlamadas.slaPctList,
+              borderColor: '#2563eb',
+              backgroundColor: '#2563eb',
+              borderWidth: 2.5,
+              yAxisID: 'ySLA',
+              order: 1,
+              datalabels: {
+                align: 'top',
+                anchor: 'start',
+                offset: 4,
+                color: '#1e40af',
+                font: { weight: 'bold', size: 10 },
+                formatter: (val) => val + '%'
+              }
+            },
+            {
+              type: 'bar',
+              label: 'Llamadas Ingresadas',
+              data: agrupadoLlamadas.totales,
+              backgroundColor: '#93c5fd',
+              borderRadius: 6,
+              yAxisID: 'yLlamadas',
+              order: 2,
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                color: '#1e293b',
+                font: { weight: 'bold', size: 10 }
+              }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'top' },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            yLlamadas: { type: 'linear', position: 'left', beginAtZero: true, grid: { color: '#f1f5f9' } },
+            ySLA: { type: 'linear', position: 'right', min: 0, max: 100, grid: { display: false }, ticks: { callback: v => v + '%' } }
+          }
+        }
+      });
+
+      // 1.1 Monthly SLA Chart Side-Block
+      const agrupadoMensualSLA = agruparLlamadasPorMes(datosLlamadas);
+      const ctx1m = document.getElementById('chartSlamensual').getContext('2d');
+      if (chartSlaMensualInstance) chartSlaMensualInstance.destroy();
+
+      chartSlaMensualInstance = new Chart(ctx1m, {
+        type: 'bar',
+        data: {
+          labels: agrupadoMensualSLA.meses,
+          datasets: [{
+            label: 'SLA %',
+            data: agrupadoMensualSLA.slaPctList,
+            backgroundColor: '#3b82f6',
+            borderRadius: 6,
+            datalabels: {
+              align: 'center',
+              anchor: 'center',
+              color: '#ffffff',
+              font: { weight: 'bold', size: 10 },
+              formatter: (v) => v + '%'
+            }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { display: false, min: 0, max: 100 }, x: { grid: { display: false } } }
+        }
+      });
+
+      // SLA Delta vs Prev Month
+      if (agrupadoMensualSLA.slaPctList.length >= 2) {
+        const last = agrupadoMensualSLA.slaPctList[agrupadoMensualSLA.slaPctList.length - 1];
+        const prev = agrupadoMensualSLA.slaPctList[agrupadoMensualSLA.slaPctList.length - 2];
+        const diff = (last - prev).toFixed(1);
+        const el = document.getElementById('slaDeltaValue');
+        if (diff >= 0) {
+          el.className = 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700';
+          el.innerText = '+' + diff + '%';
+        } else {
+          el.className = 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+          el.innerText = diff + '%';
+        }
+      }
+
+      // 2. CHART: Llamadas Atendidas vs Abandonadas por Día
+      const ctx2 = document.getElementById('chartAtendidasAbandonadas').getContext('2d');
+      if (chartAtendidasAbandonadasInstance) chartAtendidasAbandonadasInstance.destroy();
+
+      chartAtendidasAbandonadasInstance = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: agrupadoLlamadas.diasNum,
+          datasets: [
+            {
+              label: 'Atendidas',
+              data: agrupadoLlamadas.atendidas,
+              backgroundColor: '#10b981',
+              stack: 'stack1',
+              datalabels: {
+                color: '#ffffff',
+                font: { weight: 'bold', size: 10 },
+                formatter: (val) => val > 0 ? val : ''
+              }
+            },
+            {
+              label: 'Abandonadas',
+              data: agrupadoLlamadas.abandonadas,
+              backgroundColor: '#ef4444',
+              stack: 'stack1',
+              datalabels: {
+                color: '#ffffff',
+                font: { weight: 'bold', size: 10 },
+                formatter: (val) => val > 0 ? val : ''
+              }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'top' },
+            datalabels: { display: true }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false } },
+            y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
+          }
+        }
+      });
+
+      // 2.1 Monthly Distribution Chart Side-Block
+      const ctx2m = document.getElementById('chartAtendidasAbandonadasMensual').getContext('2d');
+      if (chartAtendidasAbandonadasMensualInstance) chartAtendidasAbandonadasMensualInstance.destroy();
+
+      chartAtendidasAbandonadasMensualInstance = new Chart(ctx2m, {
+        type: 'bar',
+        data: {
+          labels: agrupadoMensualSLA.meses,
+          datasets: [
+            { label: 'Atendidas', data: agrupadoMensualSLA.atendidas, backgroundColor: '#10b981', stack: 's1' },
+            { label: 'Abandonadas', data: agrupadoMensualSLA.abandonadas, backgroundColor: '#ef4444', stack: 's1' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, datalabels: { display: false } },
+          scales: { x: { stacked: true }, y: { stacked: true, display: false } }
+        }
+      });
+
+      // 3. CHART: Wise CX Casos Atendidos por Día y AHT Promedio
+      const agrupadoWise = agruparWisePorDia(wiseData);
+      const ctx3 = document.getElementById('chartWiseAHT').getContext('2d');
+      if (chartWiseAHTInstance) chartWiseAHTInstance.destroy();
+
+      chartWiseAHTInstance = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: agrupadoWise.diasNum,
+          datasets: [
+            {
+              type: 'line',
+              label: 'AHT Prom. (seg)',
+              data: agrupadoWise.ahtPromList,
+              borderColor: '#06b6d4',
+              backgroundColor: '#06b6d4',
+              borderWidth: 2,
+              yAxisID: 'yAHT',
+              order: 1,
+              datalabels: {
+                align: 'top',
+                color: '#0891b2',
+                font: { weight: 'bold', size: 9 },
+                formatter: (v) => secondsToMMSS(v)
+              }
+            },
+            {
+              type: 'bar',
+              label: 'Casos Atendidos Wise',
+              data: agrupadoWise.casosList,
+              backgroundColor: '#a5f3fc',
+              borderRadius: 6,
+              yAxisID: 'yCasos',
+              order: 2,
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                color: '#0f172a',
+                font: { weight: 'bold', size: 10 }
+              }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: 'top' } },
+          scales: {
+            x: { grid: { display: false } },
+            yCasos: { type: 'linear', position: 'left', beginAtZero: true },
+            yAHT: { type: 'linear', position: 'right', beginAtZero: true, grid: { display: false } }
+          }
+        }
+      });
+
+      // 3.1 Monthly Wise Chart
+      const agrupadoWiseMensual = agruparWisePorMes(datosWise);
+      const ctx3m = document.getElementById('chartWiseAHTMensual').getContext('2d');
+      if (chartWiseAHTMensualInstance) chartWiseAHTMensualInstance.destroy();
+
+      chartWiseAHTMensualInstance = new Chart(ctx3m, {
+        type: 'bar',
+        data: {
+          labels: agrupadoWiseMensual.meses,
+          datasets: [{
+            label: 'Casos Wise',
+            data: agrupadoWiseMensual.casosList,
+            backgroundColor: '#06b6d4',
+            borderRadius: 6,
+            datalabels: { color: '#ffffff', font: { weight: 'bold', size: 10 } }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { grid: { display: false } }, y: { display: false } }
+        }
+      });
+
+    }
+
+    // TAB 2 CHARTS
+    function renderChartsTab2(llamadasData, wiseData) {
+      // Filter telephony to ONLY advisors present in Wise
+      const llamadasWiseAdvisors = llamadasData.filter(r => r.agente && asesoresWiseValidos.includes(r.agente));
+
+      const datesMap = new Map();
+      llamadasWiseAdvisors.forEach(r => {
+        if (!datesMap.has(r.fechaStr)) datesMap.set(r.fechaStr, { llamadas: 0, wise: 0, dateObj: r.fecha });
+        if (r.atendida) datesMap.get(r.fechaStr).llamadas++;
+      });
+      wiseData.forEach(r => {
+        if (!datesMap.has(r.fechaStr)) datesMap.set(r.fechaStr, { llamadas: 0, wise: 0, dateObj: r.fecha });
+        datesMap.get(r.fechaStr).wise += r.casos;
+      });
+
+      const sortedKeys = Array.from(datesMap.keys()).sort();
+      const diasNum = sortedKeys.map(k => new Date(k + 'T00:00:00').getDate());
+      const llamadasVals = sortedKeys.map(k => datesMap.get(k).llamadas);
+      const wiseVals = sortedKeys.map(k => datesMap.get(k).wise);
+
+      const ctx = document.getElementById('chartEvolucionWiseLlamadas').getContext('2d');
+      if (chartEvolucionWiseLlamadasInstance) chartEvolucionWiseLlamadasInstance.destroy();
+
+      chartEvolucionWiseLlamadasInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: diasNum,
+          datasets: [
+            {
+              label: 'Wise Casos Atendidos',
+              data: wiseVals,
+              borderColor: '#06b6d4',
+              backgroundColor: 'rgba(6, 182, 212, 0.1)',
+              fill: true,
+              tension: 0.3,
+              datalabels: { align: 'top', color: '#0891b2', font: { weight: 'bold', size: 10 } }
+            },
+            {
+              label: 'Llamadas Atendidas (Asesores Wise)',
+              data: llamadasVals,
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              fill: true,
+              tension: 0.3,
+              datalabels: { align: 'bottom', color: '#1d4ed8', font: { weight: 'bold', size: 10 } }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: 'top' } },
+          scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
+        }
+      });
+
+      // Side Block Monthly Chart
+      const monthsMap = new Map();
+      datosWise.forEach(r => {
+        const mKey = r.fechaStr.substring(0, 7);
+        if (!monthsMap.has(mKey)) monthsMap.set(mKey, { wise: 0, llamadas: 0 });
+        monthsMap.get(mKey).wise += r.casos;
+      });
+      datosLlamadas.forEach(r => {
+        if (r.atendida && r.agente && asesoresWiseValidos.includes(r.agente)) {
+          const mKey = r.fechaStr.substring(0, 7);
+          if (!monthsMap.has(mKey)) monthsMap.set(mKey, { wise: 0, llamadas: 0 });
+          monthsMap.get(mKey).llamadas++;
+        }
+      });
+
+      const sortedMonths = Array.from(monthsMap.keys()).sort();
+      const wiseMonthVals = sortedMonths.map(k => monthsMap.get(k).wise);
+      const llamadasMonthVals = sortedMonths.map(k => monthsMap.get(k).llamadas);
+
+      const ctxM = document.getElementById('chartEvolucionWiseLlamadasMensual').getContext('2d');
+      if (chartEvolucionWiseLlamadasMensualInstance) chartEvolucionWiseLlamadasMensualInstance.destroy();
+
+      chartEvolucionWiseLlamadasMensualInstance = new Chart(ctxM, {
+        type: 'bar',
+        data: {
+          labels: sortedMonths,
+          datasets: [
+            { label: 'Wise', data: wiseMonthVals, backgroundColor: '#06b6d4' },
+            { label: 'Llamadas', data: llamadasMonthVals, backgroundColor: '#3b82f6' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: 'top' }, datalabels: { display: false } },
+          scales: { x: { grid: { display: false } }, y: { display: false } }
+        }
+      });
+    }
+
+    // TAB 3 CHARTS
+    function renderChartsTab3(asistieronData, noShowData) {
+      const datesMap = new Map();
+      asistieronData.forEach(r => {
+        if (!datesMap.has(r.fechaStr)) datesMap.set(r.fechaStr, { asistieron: 0, noshow: 0 });
+        datesMap.get(r.fechaStr).asistieron++;
+      });
+      noShowData.forEach(r => {
+        if (!datesMap.has(r.fechaStr)) datesMap.set(r.fechaStr, { asistieron: 0, noshow: 0 });
+        datesMap.get(r.fechaStr).noshow++;
+      });
+
+      const sortedKeys = Array.from(datesMap.keys()).sort();
+      const diasNum = sortedKeys.map(k => new Date(k + 'T00:00:00').getDate());
+      const asistieronVals = sortedKeys.map(k => datesMap.get(k).asistieron);
+      const noShowVals = sortedKeys.map(k => datesMap.get(k).noshow);
+
+      const ctx = document.getElementById('chartTurnosNoShow').getContext('2d');
+      if (chartTurnosNoShowInstance) chartTurnosNoShowInstance.destroy();
+
+      chartTurnosNoShowInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: diasNum,
+          datasets: [
+            {
+              label: 'Sí Vinieron (Asistieron)',
+              data: asistieronVals,
+              backgroundColor: '#10b981',
+              stack: 'turnosStack',
+              datalabels: {
+                color: '#ffffff',
+                font: { weight: 'bold', size: 10 },
+                formatter: v => v > 0 ? v : ''
+              }
+            },
+            {
+              label: 'Faltaron (No-Show)',
+              data: noShowVals,
+              backgroundColor: '#ef4444',
+              stack: 'turnosStack',
+              datalabels: {
+                color: '#ffffff',
+                font: { weight: 'bold', size: 10 },
+                formatter: v => v > 0 ? v : ''
+              }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'top' }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false } },
+            y: { stacked: true, beginAtZero: true }
+          }
+        }
+      });
+
+      // Side block monthly chart
+      const monthsMap = new Map();
+      datosTurnos.asistieron.forEach(r => {
+        const mKey = r.fechaStr.substring(0, 7);
+        if (!monthsMap.has(mKey)) monthsMap.set(mKey, { asistieron: 0, noshow: 0 });
+        monthsMap.get(mKey).asistieron++;
+      });
+      datosTurnos.noshow.forEach(r => {
+        const mKey = r.fechaStr.substring(0, 7);
+        if (!monthsMap.has(mKey)) monthsMap.set(mKey, { asistieron: 0, noshow: 0 });
+        monthsMap.get(mKey).noshow++;
+      });
+
+      const sortedMonths = Array.from(monthsMap.keys()).sort();
+      const asistM = sortedMonths.map(k => monthsMap.get(k).asistieron);
+      const noShowM = sortedMonths.map(k => monthsMap.get(k).noshow);
+
+      const ctxM = document.getElementById('chartTurnosNoShowMensual').getContext('2d');
+      if (chartTurnosNoShowMensualInstance) chartTurnosNoShowMensualInstance.destroy();
+
+      chartTurnosNoShowMensualInstance = new Chart(ctxM, {
+        type: 'bar',
+        data: {
+          labels: sortedMonths,
+          datasets: [
+            { label: 'Asistieron', data: asistM, backgroundColor: '#10b981', stack: 'm1' },
+            { label: 'No-Show', data: noShowM, backgroundColor: '#ef4444', stack: 'm1' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, datalabels: { display: false } },
+          scales: { x: { stacked: true }, y: { display: false } }
+        }
+      });
+    }
+
+    // =========================================================================
+    // PARTICIPACIÓN POR ASESOR (BLOQUE RECTANGULAR)
+    // =========================================================================
+    function renderParticipacionAsesor(llamadasData, wiseData) {
+      const stats = calcularEstadisticasAsesores(llamadasData, wiseData);
+      const totalGlobal = stats.reduce((acc, a) => acc + a.totalGestiones, 0);
+
+      document.getElementById('participacionTotalNum').innerText = totalGlobal;
+
+      const container = document.getElementById('participacionBarContainer');
+      container.innerHTML = '';
+
+      if (totalGlobal === 0) {
+        container.innerHTML = '<div class="w-full text-center py-4 text-xs font-semibold text-slate-400">Sin gestiones para el período</div>';
+        return;
+      }
+
+      const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#6366f1', '#14b8a6', '#f97316'];
+
+      stats.forEach((item, idx) => {
+        if (item.totalGestiones === 0) return;
+        const pct = ((item.totalGestiones / totalGlobal) * 100).toFixed(1);
+        const color = colors[idx % colors.length];
+
+        const seg = document.createElement('div');
+        seg.style.width = pct + '%';
+        seg.style.backgroundColor = color;
+        seg.className = 'h-full transition-all cursor-pointer relative flex items-center justify-center text-white overflow-hidden hover:opacity-90';
+
+        seg.innerHTML = `
+          <div class="px-1 text-center truncate">
+            <span class="font-extrabold text-xs block leading-none">${pct}%</span>
+            <span class="text-[9px] font-semibold opacity-90 truncate block leading-none mt-0.5">${item.nombre}</span>
+          </div>
+        `;
+
+        seg.addEventListener('mouseenter', () => updateParticipacionDetail(item, pct, color));
+        container.appendChild(seg);
+      });
+
+      // Set default detail to top advisor
+      if (stats.length > 0) {
+        const topPct = ((stats[0].totalGestiones / totalGlobal) * 100).toFixed(1);
+        updateParticipacionDetail(stats[0], topPct, colors[0]);
+      }
+    }
+
+    function updateParticipacionDetail(item, pct, color) {
+      document.getElementById('partAvatar').style.backgroundColor = color;
+      document.getElementById('partAvatar').innerText = item.nombre.charAt(0);
+      document.getElementById('partAsesorNombre').innerText = item.nombre;
+      document.getElementById('partAsesorPct').innerText = `${pct}% del total de gestiones`;
+
+      document.getElementById('partTotalGestiones').innerText = item.totalGestiones;
+      document.getElementById('partTotalLlamadas').innerText = item.llamadasAtendidas;
+      document.getElementById('partTotalWise').innerText = item.casosWise;
+    }
+
+    // =========================================================================
+    // TABLA DETALLADA POR ASESOR
+    // =========================================================================
+    function calcularEstadisticasAsesores(llamadasData, wiseData) {
+      const map = new Map();
+
+      // Initialize strictly with valid Wise advisors
+      asesoresWiseValidos.forEach(nombre => {
+        map.set(nombre, {
+          nombre: nombre,
+          llamadasAtendidas: 0,
+          llamadasTotales: 0,
+          diasLlamadasSet: new Set(),
+          esperaSegTotal: 0,
+          slaAtendidasCount: 0,
+          ahtLlamadasSegTotal: 0,
+          casosWise: 0,
+          diasWiseSet: new Set(),
+          ahtWiseSegTotal: 0
+        });
+      });
+
+      // Sum telephony for matching advisors
+      llamadasData.forEach(r => {
+        if (!r.agente || !map.has(r.agente)) return;
+        const entry = map.get(r.agente);
+        entry.diasLlamadasSet.add(r.fechaStr);
+        entry.llamadasTotales++;
+        entry.esperaSegTotal += r.esperaSeg;
+
+        if (r.atendida) {
+          entry.llamadasAtendidas++;
+          entry.ahtLlamadasSegTotal += r.duracionSeg;
+          if (r.esperaSeg <= SLA_META_SEGUNDOS) entry.slaAtendidasCount++;
+        }
+      });
+
+      // Sum Wise data
+      wiseData.forEach(r => {
+        if (!r.usuario || !map.has(r.usuario)) return;
+        const entry = map.get(r.usuario);
+        entry.diasWiseSet.add(r.fechaStr);
+        entry.casosWise += r.casos;
+        entry.ahtWiseSegTotal += (r.ahtSeg * r.casos);
+      });
+
+      const list = Array.from(map.values()).map(e => {
+        const totalGestiones = e.llamadasAtendidas + e.casosWise;
+        return {
+          ...e,
+          totalGestiones: totalGestiones,
+          diasLlamadasCnt: e.diasLlamadasSet.size || 1,
+          diasWiseCnt: e.diasWiseSet.size || 1
+        };
+      });
+
+      list.sort((a, b) => b.totalGestiones - a.totalGestiones);
+      return list;
+    }
+
+    function renderTablaAsesores(llamadasData, wiseData, fechaDesde, fechaHasta) {
+      const tbody = document.getElementById('tablaAsesoresBody');
+      tbody.innerHTML = '';
+
+      const stats = calcularEstadisticasAsesores(llamadasData, wiseData);
+      const totalGlobalGestiones = stats.reduce((acc, a) => acc + a.totalGestiones, 0);
+
+      // Check selected day count
+      let numDiasSeleccionados = 1;
+      if (fechaDesde && fechaHasta) {
+        const diffTime = Math.abs(fechaHasta - fechaDesde);
+        numDiasSeleccionados = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      }
+
+      if (stats.length === 0 || totalGlobalGestiones === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-400 italic">No hay datos registrados para los filtros seleccionados</td></tr>';
+        return;
+      }
+
+      stats.forEach(item => {
+        const promLlamDia = numDiasSeleccionados > 1 ? (item.llamadasAtendidas / numDiasSeleccionados).toFixed(1) : item.llamadasAtendidas;
+        const velEsperaSeg = item.llamadasTotales > 0 ? (item.esperaSegTotal / item.llamadasTotales) : 0;
+        const slaPct = item.llamadasTotales > 0 ? ((item.slaAtendidasCount / item.llamadasTotales) * 100).toFixed(1) : '0.0';
+        const ahtLlamSeg = item.llamadasAtendidas > 0 ? (item.ahtLlamadasSegTotal / item.llamadasAtendidas) : 0;
+
+        const promWiseDia = numDiasSeleccionados > 1 ? (item.casosWise / numDiasSeleccionados).toFixed(1) : item.casosWise;
+        const ahtWiseSeg = item.casosWise > 0 ? (item.ahtWiseSegTotal / item.casosWise) : 0;
+
+        const pctParticipacion = totalGlobalGestiones > 0 ? ((item.totalGestiones / totalGlobalGestiones) * 100).toFixed(1) : '0.0';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 transition-colors';
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-slate-800 flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] uppercase font-bold">
+              ${item.nombre.charAt(0)}
+            </div>
+            ${item.nombre}
+          </td>
+          <td class="p-3 text-right font-semibold">${item.llamadasAtendidas}</td>
+          <td class="p-3 text-right text-slate-500">${promLlamDia}</td>
+          <td class="p-3 text-right font-mono">${secondsToMMSS(velEsperaSeg)}</td>
+          <td class="p-3 text-right font-bold ${parseFloat(slaPct) >= 80 ? 'text-emerald-600' : 'text-amber-600'}">${slaPct}%</td>
+          <td class="p-3 text-right font-mono">${secondsToMMSS(ahtLlamSeg)}</td>
+          <td class="p-3 text-right font-semibold text-cyan-700">${item.casosWise}</td>
+          <td class="p-3 text-right text-slate-500">${promWiseDia}</td>
+          <td class="p-3 text-right font-mono">${secondsToMMSS(ahtWiseSeg)}</td>
+          <td class="p-3 text-right font-extrabold text-blue-700 bg-blue-50/30">${item.totalGestiones}</td>
+          <td class="p-3 text-right font-extrabold text-purple-700 bg-purple-50/30">${pctParticipacion}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // DATA GROUPING HELPERS
+    function agruparLlamadasPorDia(data) {
+      const map = new Map();
+      data.forEach(r => {
+        if (!map.has(r.fechaStr)) {
+          map.set(r.fechaStr, { dateObj: r.fecha, atendidas: 0, abandonadas: 0, dentroSLA: 0 });
+        }
+        const entry = map.get(r.fechaStr);
+        if (r.atendida) {
+          entry.atendidas++;
+          if (r.esperaSeg <= SLA_META_SEGUNDOS) entry.dentroSLA++;
+        } else {
+          entry.abandonadas++;
+        }
+      });
+
+      const sortedKeys = Array.from(map.keys()).sort();
+      const diasNum = sortedKeys.map(k => new Date(k + 'T00:00:00').getDate());
+      const atendidas = sortedKeys.map(k => map.get(k).atendidas);
+      const abandonadas = sortedKeys.map(k => map.get(k).abandonadas);
+      const totales = sortedKeys.map(k => map.get(k).atendidas + map.get(k).abandonadas);
+      const slaPctList = sortedKeys.map(k => {
+        const tot = map.get(k).atendidas + map.get(k).abandonadas;
+        return tot > 0 ? parseFloat(((map.get(k).dentroSLA / tot) * 100).toFixed(1)) : 0;
+      });
+
+      return { sortedKeys, diasNum, atendidas, abandonadas, totales, slaPctList };
+    }
+
+    function agruparWisePorDia(data) {
+      const map = new Map();
+      data.forEach(r => {
+        if (!map.has(r.fechaStr)) {
+          map.set(r.fechaStr, { dateObj: r.fecha, casos: 0, ahtTotalSeg: 0 });
+        }
+        const entry = map.get(r.fechaStr);
+        entry.casos += r.casos;
+        entry.ahtTotalSeg += (r.ahtSeg * r.casos);
+      });
+
+      const sortedKeys = Array.from(map.keys()).sort();
+      const diasNum = sortedKeys.map(k => new Date(k + 'T00:00:00').getDate());
+      const casosList = sortedKeys.map(k => map.get(k).casos);
+      const ahtPromList = sortedKeys.map(k => {
+        const c = map.get(k).casos;
+        return c > 0 ? Math.round(map.get(k).ahtTotalSeg / c) : 0;
+      });
+
+      return { sortedKeys, diasNum, casosList, ahtPromList };
+    }
+
+    function agruparLlamadasPorMes(data) {
+      const map = new Map();
+      data.forEach(r => {
+        const mKey = r.fechaStr.substring(0, 7);
+        if (!map.has(mKey)) map.set(mKey, { atendidas: 0, abandonadas: 0, dentroSLA: 0 });
+        const entry = map.get(mKey);
+        if (r.atendida) {
+          entry.atendidas++;
+          if (r.esperaSeg <= SLA_META_SEGUNDOS) entry.dentroSLA++;
+        } else {
+          entry.abandonadas++;
+        }
+      });
+
+      const meses = Array.from(map.keys()).sort();
+      const atendidas = meses.map(k => map.get(k).atendidas);
+      const abandonadas = meses.map(k => map.get(k).abandonadas);
+      const slaPctList = meses.map(k => {
+        const tot = map.get(k).atendidas + map.get(k).abandonadas;
+        return tot > 0 ? parseFloat(((map.get(k).dentroSLA / tot) * 100).toFixed(1)) : 0;
+      });
+
+      return { meses, atendidas, abandonadas, slaPctList };
+    }
+
+    function agruparWisePorMes(data) {
+      const map = new Map();
+      data.forEach(r => {
+        const mKey = r.fechaStr.substring(0, 7);
+        if (!map.has(mKey)) map.set(mKey, { casos: 0, ahtTotalSeg: 0 });
+        const entry = map.get(mKey);
+        entry.casos += r.casos;
+        entry.ahtTotalSeg += (r.ahtSeg * r.casos);
+      });
+
+      const meses = Array.from(map.keys()).sort();
+      const casosList = meses.map(k => map.get(k).casos);
+      return { meses, casosList };
+    }
+  </script>
+</body>
+</html>
