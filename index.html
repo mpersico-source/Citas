@@ -70,7 +70,7 @@
 
   <main class="max-w-[1600px] w-full mx-auto p-4 md:p-6 flex-1 flex flex-col gap-6">
 
-    <!-- UPLOAD DROPZONE / MANUAL FILE LOAD -->
+    <!-- UPLOAD DROPZONE -->
     <section id="dropzoneSection" class="bg-white rounded-2xl p-4 border border-dashed border-blue-300 shadow-sm bg-gradient-to-r from-blue-50/50 to-slate-50 transition-all">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
@@ -134,7 +134,7 @@
           <input type="date" id="fechaHasta" onchange="applyCustomDates()" class="border text-xs rounded-xl px-2.5 py-1.5 bg-slate-50 border-slate-300 font-medium">
         </div>
 
-        <!-- Asesores Dropdown (Sólo asesores presentes en Wise) -->
+        <!-- Asesores Dropdown -->
         <div class="flex items-center gap-2 border-l pl-4 border-slate-200">
           <span class="text-xs font-bold text-slate-500 uppercase">Asesor:</span>
           <select id="selectAsesor" onchange="procesarYActualizar()" class="text-xs font-semibold border rounded-xl px-2.5 py-1.5 bg-slate-50 border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[180px]">
@@ -144,115 +144,113 @@
       </div>
     </section>
 
-    <!-- ========================================================================= -->
     <!-- TAB 1: VISIÓN GENERAL -->
-    <!-- ========================================================================= -->
     <div id="content_vision_general" class="tab-content flex flex-col gap-6">
-      
-      <!-- TARJETAS DE MÉTRICAS (KPIs) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
+      <!-- TARJETAS DE MÉTRICAS (KPIs) - PANTALLA 1: TEXTOS REVISADOS, CENTRADOS, EN MAYÚSCULA INICIAL Y TAMAÑO OPTIMIZADO -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-10 gap-2">
         
-        <!-- 1. Vol. Casos Creados -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Vol. Casos Creados</span>
-          <div id="kpiVolCasos" class="text-xl font-extrabold text-blue-600 my-1">0</div>
-          <span class="text-[10px] text-slate-500 font-medium truncate">Telefonía + Digital Wise</span>
+        <!-- 1. Cantidad de Gestiones -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">Cantidad De Gestiones</span>
+          <div id="kpiVolCasos" class="text-lg font-black text-blue-600 my-0.5">0</div>
+          <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight text-center leading-tight w-full truncate">Llamadas Y Wise</span>
         </div>
 
-        <!-- 2. Conversión a Turnos -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Conversión a Turnos</span>
-          <div id="kpiConversion" class="text-xl font-extrabold text-purple-600 my-1">0%</div>
-          <span id="kpiConversionSub" class="text-[10px] text-slate-500 font-medium truncate">0 turnos / 0 gestiones</span>
+        <!-- 2. Conversión a Turno -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">Conversión A Turnos</span>
+          <div id="kpiConversion" class="text-lg font-black text-purple-600 my-0.5">0%</div>
+          <span id="kpiConversionSub" class="text-[9px] font-semibold text-purple-600 tracking-tight text-center leading-tight w-full truncate">Turnos / Gestiones</span>
         </div>
 
-        <!-- 3. Llamadas Atendidas -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Llamadas Atendidas</span>
-          <div id="kpiAtendidas" class="text-xl font-extrabold text-emerald-600 my-1">0</div>
-          <span id="kpiAtendidasPct" class="text-[10px] text-emerald-600 font-bold">0%</span>
+        <!-- 3. Llamadas Ingresadas -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">Llamadas Ingresadas</span>
+          <div id="kpiIngresadas" class="text-lg font-black text-indigo-600 my-0.5">0</div>
+          <span id="kpiIngresadasSub" class="text-[9px] font-semibold text-indigo-600 tracking-tight text-center leading-tight w-full truncate">Total Ingresadas</span>
         </div>
 
-        <!-- 4. Llamadas Abandonadas -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Llamadas Abandonadas</span>
-          <div id="kpiAbandonadas" class="text-xl font-extrabold text-rose-600 my-1">0</div>
-          <span id="kpiAbandonadasPct" class="text-[10px] text-rose-600 font-bold">0%</span>
+        <!-- 4. Llamadas Atendidas -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">Llamadas Atendidas</span>
+          <div id="kpiAtendidasPct" class="text-lg font-black text-emerald-600 my-0.5">0%</div>
+          <span id="kpiAtendidasSub" class="text-[9px] font-semibold text-emerald-600 tracking-tight text-center leading-tight w-full truncate">0 Llamadas</span>
         </div>
 
-        <!-- 5. Nivel Servicio (SLA) -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Nivel Servicio (SLA)</span>
-          <div id="kpiSLA" class="text-xl font-extrabold text-indigo-600 my-1">0%</div>
-          <span class="text-[10px] text-slate-500 font-medium truncate">&lt;= 20s espera</span>
+        <!-- 5. Llamadas Abandonadas -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">Llamadas Abandonadas</span>
+          <div id="kpiAbandonadasPct" class="text-lg font-black text-rose-600 my-0.5">0%</div>
+          <span id="kpiAbandonadasSub" class="text-[9px] font-semibold text-rose-600 tracking-tight text-center leading-tight w-full truncate">0 Llamadas</span>
         </div>
 
-        <!-- 6. Tiempo Resp. Prom. -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tiempo Resp. Prom.</span>
-          <div id="kpiTiempoEspera" class="text-xl font-extrabold text-amber-600 my-1">00:00</div>
-          <span class="text-[10px] text-slate-500 font-medium truncate">Espera en cola</span>
+        <!-- 6. Nivel de Servicio (SLA) -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">Nivel De Servicio (SLA)</span>
+          <div id="kpiSLA" class="text-lg font-black text-blue-600 my-0.5">0%</div>
+          <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight text-center leading-tight w-full truncate">Atendidas &lt;= 20s Espera</span>
         </div>
 
-        <!-- 7. AHT Llamadas -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">AHT Llamadas</span>
-          <div id="kpiAHTLlamadas" class="text-xl font-extrabold text-teal-600 my-1">00:00</div>
-          <span class="text-[10px] text-slate-500 font-medium truncate">Tiempo en llamada</span>
+        <!-- 7. Tiempo de Respuesta -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">Tiempo De Respuesta</span>
+          <div id="kpiTiempoEspera" class="text-lg font-black text-amber-600 my-0.5">00:00</div>
+          <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight text-center leading-tight w-full truncate">Espera En Cola</span>
         </div>
 
-        <!-- 8. Casos Wise Atendidos -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Casos Wise</span>
-          <div id="kpiCasosWise" class="text-xl font-extrabold text-sky-600 my-1">0</div>
-          <span class="text-[10px] text-slate-500 font-medium truncate">Atendidos digital</span>
+        <!-- 8. AHT Llamadas -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">AHT Llamadas</span>
+          <div id="kpiAHTLlamadas" class="text-lg font-black text-teal-600 my-0.5">00:00</div>
+          <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight text-center leading-tight w-full truncate">Duración De Llamada</span>
         </div>
 
-        <!-- 9. AHT Wise -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">AHT Wise</span>
-          <div id="kpiAHTWise" class="text-xl font-extrabold text-cyan-600 my-1">00:00</div>
-          <span class="text-[10px] text-slate-500 font-medium truncate">Gestión por caso</span>
+        <!-- 9. Casos Atendidos -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">Casos Atendidos</span>
+          <div id="kpiCasosWise" class="text-lg font-black text-sky-600 my-0.5">0</div>
+          <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight text-center leading-tight w-full truncate">Casos Canal Wise</span>
         </div>
 
+        <!-- 10. AHT Casos -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center min-h-[105px]">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight w-full break-words">AHT Casos</span>
+          <div id="kpiAHTWise" class="text-lg font-black text-cyan-600 my-0.5">00:00</div>
+          <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight text-center leading-tight w-full truncate">Duración Del Caso</span>
+        </div>
       </div>
 
-      <!-- GRÁFICOS TAB 1 (Ancho Completo uno debajo de otro) -->
-
-      <!-- GRÁFICO 1: Llamadas Ingresadas y SLA % Diario + Comparativa Mensual -->
+      <!-- GRÁFICOS TAB 1 -->
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
               <i class="fa-solid fa-phone-volume text-blue-600"></i> Llamadas Ingresadas y SLA % Diario
             </h2>
-            <span class="text-[11px] text-slate-400 font-medium">Por Día (Último Mes)</span>
+            <span class="text-[11px] text-slate-400 font-medium">Por Día</span>
           </div>
           <div class="chart-container">
             <canvas id="chartLlamadasSLA"></canvas>
           </div>
         </div>
-
-        <!-- Evolutivo Mensual Side-Block -->
         <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Evolutivo Mensual SLA</h3>
+              <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">EVOLUTIVO MENSUAL SLA</h3>
               <i class="fa-solid fa-calendar-days text-slate-400 text-xs"></i>
             </div>
             <p class="text-[11px] text-slate-500 mb-3">Total acumulado histórico por mes</p>
-            <div class="h-44 relative">
+            <div class="h-40 relative">
               <canvas id="chartSlamensual"></canvas>
             </div>
           </div>
           <div id="cardSlaDelta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-600">Comparativa SLA:</span>
-            <span id="slaDeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700">+0.0%</span>
+            <span class="text-[11px] font-bold text-slate-600">SLA vs Mes Ant:</span>
+            <span id="slaDeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">-</span>
           </div>
         </div>
       </div>
 
-      <!-- GRÁFICO 2: Llamadas Atendidas vs Abandonadas por Día + Mensual -->
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-3">
@@ -265,8 +263,6 @@
             <canvas id="chartAtendidasAbandonadas"></canvas>
           </div>
         </div>
-
-        <!-- Evolutivo Mensual Side-Block -->
         <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
@@ -274,14 +270,17 @@
               <i class="fa-solid fa-chart-pie text-slate-400 text-xs"></i>
             </div>
             <p class="text-[11px] text-slate-500 mb-3">Atendidas vs Abandonadas por mes</p>
-            <div class="h-48 relative">
+            <div class="h-40 relative">
               <canvas id="chartAtendidasAbandonadasMensual"></canvas>
             </div>
+          </div>
+          <div id="cardAbandDelta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-600">% Abandonadas vs Mes Ant:</span>
+            <span id="abandDeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">-</span>
           </div>
         </div>
       </div>
 
-      <!-- GRÁFICO 3: Wise CX: Casos Atendidos por Día y AHT Promedio + Mensual -->
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-3">
@@ -294,8 +293,6 @@
             <canvas id="chartWiseAHT"></canvas>
           </div>
         </div>
-
-        <!-- Evolutivo Mensual Side-Block -->
         <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
@@ -303,92 +300,69 @@
               <i class="fa-solid fa-clock text-slate-400 text-xs"></i>
             </div>
             <p class="text-[11px] text-slate-500 mb-3">Casos e AHT Promedio por mes</p>
-            <div class="h-48 relative">
+            <div class="h-40 relative">
               <canvas id="chartWiseAHTMensual"></canvas>
             </div>
           </div>
+          <div id="cardAhtDelta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-600">AHT (min) vs Mes Ant:</span>
+            <span id="ahtDeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">-</span>
+          </div>
         </div>
       </div>
-
     </div>
 
-    <!-- ========================================================================= -->
     <!-- TAB 2: DETALLE POR ASESOR -->
-    <!-- ========================================================================= -->
     <div id="content_detalle_asesor" class="tab-content hidden flex flex-col gap-6">
-      
-      <!-- GRÁFICO: Evolución Diaria Wise CX vs Llamadas Ingresadas + Side-Block Mensual -->
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-chart-line text-blue-600"></i> Evolución Diaria: Wise CX vs Llamadas Ingresadas
+              <i class="fa-solid fa-chart-line text-blue-600"></i> Evolución Diaria: Casos vs Llamadas Atendidas
             </h2>
-            <span class="text-[11px] text-slate-400 font-medium">Llamadas Asesores Wise &amp; Casos Digitales</span>
+            <span class="text-[11px] text-slate-400 font-medium">Solo llamadas de asesores</span>
           </div>
           <div class="chart-container">
             <canvas id="chartEvolucionWiseLlamadas"></canvas>
           </div>
         </div>
-
-        <!-- Evolución Mensual Side Block -->
-        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200">
-          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Comparativo Mensual</h3>
-          <p class="text-[11px] text-slate-500 mb-3">Wise vs Llamadas Atendidas</p>
-          <div class="h-52 relative">
-            <canvas id="chartEvolucionWiseLlamadasMensual"></canvas>
+        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+          <div>
+            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Comparativo Mensual</h3>
+            <p class="text-[11px] text-slate-500 mb-3">Casos vs Llamadas Atendidas</p>
+            <div class="h-40 relative">
+              <canvas id="chartEvolucionWiseLlamadasMensual"></canvas>
+            </div>
+          </div>
+          <div id="cardTab2Delta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-600">% Llamadas vs Mes Ant:</span>
+            <span id="tab2DeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">-</span>
           </div>
         </div>
       </div>
 
-      <!-- PARTICIPACIÓN POR ASESOR (BLOQUE RECTANGULAR HORIZONTAL ANCHO COMPLETO) -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+      <!-- PARTICIPACIÓN POR ASESOR (PANTALLA 2 REDISEÑADA CON UNIFICACIÓN, TRANSICIÓN Y CENTRADO SEGÚN REFERENCIA) -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300">
         <div class="mb-4 flex items-center justify-between">
           <div>
             <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
               <i class="fa-solid fa-chart-pie text-purple-600"></i> Participación por Asesor
             </h2>
-            <p class="text-xs text-slate-500">% del total de gestiones combinadas (Llamadas Atendidas + Casos Wise)</p>
+            <p class="text-xs text-slate-500">% del total de gestiones (Llamadas Atendidas + Casos)</p>
           </div>
+          <button id="btnVerTodosAsesores" onclick="deselectAsesorParticipacion()" class="hidden text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3.5 py-1.5 rounded-xl border border-blue-200 transition-all flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-rotate-left"></i> Ver todos los asesores
+          </button>
         </div>
 
-        <!-- Rectángulo 1: Total Gestiones -->
-        <div class="w-full bg-slate-900 text-white rounded-t-2xl py-3 px-6 text-center border-b border-slate-700 shadow-inner">
-          <span class="text-xs uppercase tracking-widest font-bold text-slate-400 block">Total Gestiones Combinadas</span>
-          <span id="participacionTotalNum" class="text-3xl font-extrabold text-blue-400">0</span>
+        <!-- Banner Superior: Tocar la parte negra deselecciona y vuelve a la normalidad -->
+        <div onclick="deselectAsesorParticipacion()" class="w-full bg-slate-900 text-white rounded-t-2xl py-3 px-6 text-center border-b border-slate-700 shadow-inner cursor-pointer hover:bg-slate-800 transition-colors">
+          <span class="text-xs uppercase tracking-widest font-bold text-slate-400 block">TOTAL GESTIONES</span>
+          <span id="participacionTotalNum" class="text-3xl font-black text-blue-400">0</span>
         </div>
-
-        <!-- Rectángulo 2: Distribución Proporcional por Asesor -->
-        <div id="participacionBarContainer" class="w-full h-16 bg-slate-100 rounded-b-2xl overflow-hidden flex shadow-inner border border-slate-200">
-          <!-- Dinámicamente poblado con barras de asesores -->
-        </div>
-
-        <!-- Detalle de Selección / Hover de Asesor -->
-        <div id="participacionDetailCard" class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 transition-all flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div id="partAvatar" class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
-              -
-            </div>
-            <div>
-              <span id="partAsesorNombre" class="text-sm font-extrabold text-slate-800 block">Pasá el cursor sobre un segmento</span>
-              <span id="partAsesorPct" class="text-xs font-semibold text-purple-600">--% del total</span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-6">
-            <div class="text-center">
-              <span class="text-[10px] uppercase font-bold text-slate-400 block">Total Gestiones</span>
-              <span id="partTotalGestiones" class="text-base font-extrabold text-slate-800">0</span>
-            </div>
-            <div class="text-center border-l pl-6 border-slate-200">
-              <span class="text-[10px] uppercase font-bold text-slate-400 block">Llamadas Atendidas</span>
-              <span id="partTotalLlamadas" class="text-base font-extrabold text-blue-600">0</span>
-            </div>
-            <div class="text-center border-l pl-6 border-slate-200">
-              <span class="text-[10px] uppercase font-bold text-slate-400 block">Casos Wise</span>
-              <span id="partTotalWise" class="text-base font-extrabold text-cyan-600">0</span>
-            </div>
-          </div>
+        
+        <!-- Contenedor Unificado Interactivo con Transición Suave -->
+        <div id="participacionBarContainer" class="w-full bg-slate-100 rounded-b-2xl overflow-hidden flex shadow-inner border border-slate-200 transition-all duration-500">
         </div>
       </div>
 
@@ -400,7 +374,6 @@
           </h2>
           <span class="text-xs font-medium text-slate-400">Ordenado por Total de Gestiones</span>
         </div>
-
         <div class="overflow-x-auto custom-scrollbar">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
@@ -411,157 +384,129 @@
                 <th class="p-3 text-right">Vel. Atención (Espera)</th>
                 <th class="p-3 text-right">SLA %</th>
                 <th class="p-3 text-right">AHT Llamadas</th>
-                <th class="p-3 text-right">Casos Wise</th>
-                <th class="p-3 text-right">Casos Wise/Día</th>
-                <th class="p-3 text-right">AHT Wise</th>
+                <th class="p-3 text-right">Casos</th>
+                <th class="p-3 text-right">Casos/Día</th>
+                <th class="p-3 text-right">AHT Casos</th>
                 <th class="p-3 text-right font-extrabold text-blue-700 bg-blue-50/50">Total Gestiones</th>
                 <th class="p-3 text-right font-extrabold text-purple-700 bg-purple-50/50">% Participación</th>
               </tr>
             </thead>
             <tbody id="tablaAsesoresBody" class="divide-y divide-slate-100 text-slate-700 font-medium">
-              <!-- Filas dinámicas -->
-              <tr>
-                <td colspan="11" class="p-8 text-center text-slate-400 italic">No hay datos para mostrar</td>
-              </tr>
+              <tr><td colspan="11" class="p-8 text-center text-slate-400 italic">No hay datos para mostrar</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
 
-    <!-- ========================================================================= -->
-    <!-- TAB 3: TURNOS Y NO-SHOW (COLÓN) -->
-    <!-- ========================================================================= -->
+    <!-- TAB 3: TURNOS Y NO-SHOW (COLÓN) - COLORES ARMONIOSOS Y NÚMEROS EN EL PISO DE LAS BARRAS -->
     <div id="content_turnos_colon" class="tab-content hidden flex flex-col gap-6">
       
-      <!-- TARJETAS DE ASISTENCIA Y NO-SHOW -->
+      <!-- TARJETAS SUPERIORES CENTRADAS Y ARMONIOSAS -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        <!-- 1. Promedio / Total Agendados -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Agendados</span>
-          <div id="kpiTurnosTotal" class="text-2xl font-extrabold text-slate-800 my-1">0</div>
+        <!-- 1. Turnos Agendados -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">TURNOS AGENDADOS</span>
+          <div id="kpiTurnosTotal" class="text-3xl font-extrabold text-slate-800 my-1">0</div>
           <span class="text-xs text-slate-500 font-medium">Total en el período</span>
         </div>
 
-        <!-- 2. Sí Vinieron (Asistieron) -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between border-l-4 border-l-emerald-500">
-          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Sí Vinieron (Asistieron)</span>
-          <div id="kpiTurnosAsistieron" class="text-2xl font-extrabold text-emerald-600 my-1">0</div>
-          <span id="kpiTurnosAsistieronPct" class="text-xs text-emerald-600 font-bold">0% del total</span>
+        <!-- 2. Trabajos Realizados (Verde suave agradable) -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center border-l-4 border-l-emerald-500">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600">TRABAJOS REALIZADOS</span>
+          <div id="kpiTurnosAsistieron" class="text-3xl font-extrabold text-emerald-600 my-1">0%</div>
+          <span id="kpiTurnosAsistieronPct" class="text-xs text-emerald-600 font-bold">0 turnos</span>
         </div>
 
-        <!-- 3. Faltaron (No-Show) -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between border-l-4 border-l-rose-500">
-          <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Faltaron (No-Show)</span>
-          <div id="kpiTurnosNoShow" class="text-2xl font-extrabold text-rose-600 my-1">0</div>
-          <span id="kpiTurnosNoShowPct" class="text-xs text-rose-600 font-bold">0% ausentismo</span>
+        <!-- 3. No-Show (Rojo suave no estridente) -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center border-l-4 border-l-rose-500">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-rose-600">NO-SHOW</span>
+          <div id="kpiTurnosNoShow" class="text-3xl font-extrabold text-rose-600 my-1">0%</div>
+          <span id="kpiTurnosNoShowPct" class="text-xs text-rose-600 font-bold">0 turnos</span>
         </div>
 
-        <!-- 4. Comparativa con período anterior -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Var. Ausentismo vs Mes Ant.</span>
+        <!-- 4. Variación Con el Mes Anterior -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">VARIACION CON EL MES ANTERIOR</span>
           <div id="kpiTurnosDelta" class="text-2xl font-extrabold text-slate-700 my-1">0.0%</div>
-          <span class="text-xs text-slate-500 font-medium">Diferencia en puntos %</span>
+          <span class="text-[10px] text-slate-500 font-medium">Diferencia de puntos del % No-Show</span>
         </div>
-
       </div>
 
-      <!-- GRÁFICO: Evolución Diaria Turnos y No-Show + Side-Block Mensual -->
+      <!-- GRÁFICOS TAB 3 (NÚMEROS FIJADOS ABAJO EN EL PISO Y MENOS CONTRASTANTES) -->
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-6">
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-calendar-xmark text-rose-600"></i> Evolución Diaria: Turnos Agendados y No-Show (Sucursal Colón)
+              <i class="fa-solid fa-calendar-xmark text-rose-500"></i> Evolución Diaria: Agendados vs No-Show
             </h2>
-            <span class="text-[11px] text-slate-400 font-medium">Asistencias vs Ausentismo</span>
+            <span class="text-[11px] text-slate-400 font-medium">Cantidades Diarias</span>
           </div>
           <div class="chart-container">
             <canvas id="chartTurnosNoShow"></canvas>
           </div>
         </div>
-
-        <!-- Side-Block Evolutivo Mensual -->
-        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200">
-          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Evolución Mensual No-Show</h3>
-          <p class="text-[11px] text-slate-500 mb-3">Tasa de ausentismo por mes</p>
-          <div class="h-52 relative">
-            <canvas id="chartTurnosNoShowMensual"></canvas>
+        
+        <!-- COMPOSICIÓN HISTÓRICA RECREADA SEGÚN IMAGEN 3 -->
+        <div class="w-full lg:w-80 shrink-0 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+          <div>
+            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">COMPOSICIÓN HISTÓRICA</h3>
+            <p class="text-[11px] text-slate-500 mb-3">TRABAJOS REALIZADOS VS NO SHOW</p>
+            <div class="h-56 relative flex items-center justify-center">
+              <canvas id="chartTurnosNoShowMensual"></canvas>
+            </div>
           </div>
         </div>
       </div>
-
     </div>
-
   </main>
 
   <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400 font-medium">
     Tablero de Control Operativo &copy; 2026 - Toyota Centro Motor
   </footer>
 
-  <!-- ========================================================================= -->
-  <!-- JAVASCRIPT / LOGIC SECTION -->
-  <!-- ========================================================================= -->
   <script>
-    // Register ChartDataLabels plugin globally
     Chart.register(ChartDataLabels);
 
-    // GLOBAL CONSTANTS & STATE
     const SLA_META_SEGUNDOS = 20;
 
     let datosLlamadas = [];
     let datosWise = [];
-    let datosTurnos = {
-      creados: [],    // [{fecha, workOrder}]
-      asistieron: [], // [{fecha, workOrder}]
-      noshow: []      // [{fecha}]
-    };
+    let datosTurnos = { creados: [], asistieron: [], noshow: [] };
+    let asesoresWiseValidos = [];
 
-    let asesoresWiseValidos = []; // Names present in Wise
+    // Estado del Asesor seleccionado en Participación por Asesor
+    let selectedAsesorParticipacion = null;
 
-    // CHART REFERENCES
     let chartLlamadasSLAInstance = null;
     let chartSlaMensualInstance = null;
     let chartAtendidasAbandonadasInstance = null;
     let chartAtendidasAbandonadasMensualInstance = null;
     let chartWiseAHTInstance = null;
     let chartWiseAHTMensualInstance = null;
-
     let chartEvolucionWiseLlamadasInstance = null;
     let chartEvolucionWiseLlamadasMensualInstance = null;
-
     let chartTurnosNoShowInstance = null;
     let chartTurnosNoShowMensualInstance = null;
 
-    // INITIALIZATION & AUTOLOAD
     window.addEventListener('DOMContentLoaded', () => {
       intentarAutocarga();
     });
 
-    // SWITCH TABS
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-
       document.getElementById('content_' + tabId).classList.remove('hidden');
       document.getElementById('tab_' + tabId).classList.add('active');
-
-      // Refresh charts layout on tab switch
-      setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-      }, 50);
+      setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 50);
     }
 
-    // AUTOLOAD TRY (2 second timeout then show manual upload option)
     function intentarAutocarga() {
       const msg = document.getElementById('autoLoadMsg');
       let loadedCount = 0;
-
       const timer = setTimeout(() => {
-        if (loadedCount < 3) {
-          msg.innerHTML = '<span class="text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i> Autocarga no detectada. Usá la carga manual.</span>';
-        }
+        if (loadedCount < 3) msg.innerHTML = '<span class="text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i> Autocarga no detectada. Usá la carga manual.</span>';
       }, 2000);
 
       Promise.allSettled([
@@ -587,7 +532,6 @@
       });
     }
 
-    // MANUAL FILE UPLOAD HANDLER
     function handleFileSelect(event) {
       const files = event.target.files;
       if (!files || files.length === 0) return;
@@ -595,7 +539,6 @@
       Array.from(files).forEach(file => {
         const name = file.name.toLowerCase();
         const reader = new FileReader();
-
         if (name.includes('llamadas')) {
           reader.onload = (e) => { parseCSVLlamadas(e.target.result); checkAndRender(); };
           reader.readAsText(file);
@@ -614,27 +557,31 @@
       document.getElementById('autoLoadMsg').innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Archivo(s) actualizado(s).</span>';
     }
 
-    // PARSER: llamadas.csv
+    const normalizarNombre = (s) => String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
     function parseCSVLlamadas(csvText) {
       Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
+        header: true, skipEmptyLines: true,
         complete: (results) => {
           datosLlamadas = [];
           results.data.forEach(row => {
             const ani = String(row.QCI_ANI || '').trim();
-            // RULE: Exclude internal calls (ANI <= 3 digits)
-            if (ani.length <= 3) return;
+            if (ani.length < 3) return;
 
             const fechaObj = parseFechaCompleta(row.inicio);
             if (!fechaObj) return;
 
-            let agente = String(row.nombre_agente || '').trim();
-            // UNIFY Celeste Cornejo -> Rocio Cornejo
-            if (agente.toLowerCase().includes('celeste cornejo')) agente = 'Rocio Cornejo';
+            let agenteOrig = String(row.nombre_agente || '').trim();
+            let agNorm = normalizarNombre(agenteOrig);
+            
+            let agente = agenteOrig;
+            if (agNorm.includes('celeste cornejo') || agNorm.includes('rocio cornejo')) {
+              agente = 'Rocio Cornejo';
+            } else if (agNorm === 'sofia' || agNorm.includes('sofia montano') || agNorm.includes('sofia montaño')) {
+              agente = 'Sofía Montaño';
+            }
 
             const esAtendida = String(row.QCI_ANSWERED || '').toLowerCase() === 'yes';
-
             datosLlamadas.push({
               fecha: fechaObj,
               fechaStr: formatDateKey(fechaObj),
@@ -649,25 +596,28 @@
       });
     }
 
-    // PARSER: wise.csv
     function parseCSVWise(csvText) {
       Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
+        header: true, skipEmptyLines: true,
         complete: (results) => {
           datosWise = [];
           const asesoresSet = new Set();
 
           results.data.forEach(row => {
-            let usuario = String(row.Usuario || row.usuario || '').trim();
-            if (!usuario) return;
+            let usuarioOrig = String(row.Usuario || row.usuario || '').trim();
+            if (!usuarioOrig) return;
 
-            // UNIFY Celeste Cornejo -> Rocio Cornejo
-            if (usuario.toLowerCase().includes('celeste cornejo')) usuario = 'Rocio Cornejo';
+            let usNorm = normalizarNombre(usuarioOrig);
+            let usuario = usuarioOrig;
+            
+            if (usNorm.includes('celeste cornejo') || usNorm.includes('rocio cornejo')) {
+              usuario = 'Rocio Cornejo';
+            } else if (usNorm === 'sofia' || usNorm.includes('sofia montano') || usNorm.includes('sofia montaño')) {
+              usuario = 'Sofía Montaño';
+            }
 
             asesoresSet.add(usuario);
 
-            // Use 'Día' column
             const diaStr = row['Día'] || row['Dia'] || row['día'] || row['dia'];
             const fechaObj = parseFechaCompleta(diaStr);
             if (!fechaObj) return;
@@ -676,11 +626,7 @@
             const ahtSeg = parseAHTTextToSeconds(row['TMO (AHT) por Caso'] || row['TMO (AHT) por caso'] || '0');
 
             datosWise.push({
-              fecha: fechaObj,
-              fechaStr: formatDateKey(fechaObj),
-              usuario: usuario,
-              casos: casos,
-              ahtSeg: ahtSeg
+              fecha: fechaObj, fechaStr: formatDateKey(fechaObj), usuario: usuario, casos: casos, ahtSeg: ahtSeg
             });
           });
 
@@ -691,100 +637,63 @@
       });
     }
 
-    // PARSER: turnos.xlsx
     function parseXLSXTurnos(arrayBuffer) {
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
       datosTurnos = { creados: [], asistieron: [], noshow: [] };
-
-      // Maps for deduplication: key = workOrder
       const creadosMap = new Map();
       const asistieronMap = new Map();
 
-      // Skip header row if exists
       for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         if (!row || row.length === 0) continue;
-
-        // Col 1 & 2: Turnos Creados
         const fechaCreacion = parseFechaCompleta(row[0]);
         const wo1 = row[1] ? String(row[1]).trim() : null;
         if (fechaCreacion && wo1 && !creadosMap.has(wo1)) {
           creadosMap.set(wo1, { fecha: fechaCreacion, fechaStr: formatDateKey(fechaCreacion), workOrder: wo1 });
         }
-
-        // Col 3 & 4: Turnos Asistieron
         const fechaRecepcion = parseFechaCompleta(row[2]);
         const wo2 = row[3] ? String(row[3]).trim() : null;
         if (fechaRecepcion && wo2 && !asistieronMap.has(wo2)) {
           asistieronMap.set(wo2, { fecha: fechaRecepcion, fechaStr: formatDateKey(fechaRecepcion), workOrder: wo2 });
         }
-
-        // Col 5: No Show
         const fechaNoShow = parseFechaCompleta(row[4]);
         if (fechaNoShow) {
           datosTurnos.noshow.push({ fecha: fechaNoShow, fechaStr: formatDateKey(fechaNoShow) });
         }
       }
-
       datosTurnos.creados = Array.from(creadosMap.values());
       datosTurnos.asistieron = Array.from(asistieronMap.values());
-
-      const totalTurnosReg = datosTurnos.creados.length + datosTurnos.asistieron.length + datosTurnos.noshow.length;
-      document.getElementById('cntTurnos').innerText = totalTurnosReg;
+      document.getElementById('cntTurnos').innerText = datosTurnos.creados.length + datosTurnos.asistieron.length + datosTurnos.noshow.length;
     }
 
-    // POPULATE ADVISOR DROPDOWN (ONLY WISE ADVISORS)
     function updateAsesoresDropdown() {
       const select = document.getElementById('selectAsesor');
       select.innerHTML = '<option value="TODOS">Todos los Asesores</option>';
       asesoresWiseValidos.forEach(a => {
         const opt = document.createElement('option');
-        opt.value = a;
-        opt.textContent = a;
-        select.appendChild(opt);
+        opt.value = a; opt.textContent = a; select.appendChild(opt);
       });
     }
 
-    // INITIALIZE DATA & DEFAULT PRESET "AYER"
-    function initAppWithData() {
-      // DEFAULT: Select "Ayer"
-      setPreset('ayer');
-    }
+    function initAppWithData() { setPreset('ayer'); }
 
-    // DATE HELPER UTILITIES
     function parseFechaCompleta(val) {
       if (!val) return null;
       if (val instanceof Date) return val;
-
-      if (typeof val === 'number') {
-        // Excel serial date
-        return new Date(Math.round((val - 25569) * 86400 * 1000));
-      }
-
+      if (typeof val === 'number') return new Date(Math.round((val - 25569) * 86400 * 1000));
       const str = String(val).trim();
       if (!str) return null;
-
-      // Handle DD/MM/YYYY or YYYY-MM-DD
       if (str.includes('/')) {
         const parts = str.split(' ')[0].split('/');
-        if (parts.length === 3) {
-          // If DD/MM/YYYY
-          if (parts[0].length === 2 && parts[2].length === 4) {
-            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-          }
+        if (parts.length === 3 && parts[0].length === 2 && parts[2].length === 4) {
+          return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
         }
       } else if (str.includes('-')) {
         const parts = str.split(' ')[0].split('-');
         if (parts.length === 3) {
-          if (parts[0].length === 4) {
-            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-          } else {
-            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-          }
+          return parts[0].length === 4 ? new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])) : new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
         }
       }
       const d = new Date(str);
@@ -792,10 +701,7 @@
     }
 
     function formatDateKey(d) {
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
     function parseAHTTextToSeconds(text) {
@@ -821,491 +727,442 @@
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
-    // PRESET FILTERS
     function setPreset(type) {
-      const buttons = ['btnHoy', 'btnAyer', 'btnSemana', 'btnMesActual', 'btnMesAnterior'];
-      buttons.forEach(id => {
+      ['btnHoy', 'btnAyer', 'btnSemana', 'btnMesActual', 'btnMesAnterior'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all';
       });
-
       const activeBtn = document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1));
       if (activeBtn) activeBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition-all';
 
       document.getElementById('selectMes').value = '';
+      let refDate = new Date(2026, 8, 30);
 
-      // Reference current date = 2026-09-30 (or system date)
-      let refDate = new Date(2026, 8, 30); // 30 Sept 2026
-
-      let desde = new Date(refDate);
-      let hasta = new Date(refDate);
-
-      if (type === 'hoy') {
-        // Same day
-      } else if (type === 'ayer') {
-        desde.setDate(refDate.getDate() - 1);
-        hasta.setDate(refDate.getDate() - 1);
-      } else if (type === 'semana') {
-        desde.setDate(refDate.getDate() - 7);
-      } else if (type === 'mes_actual') {
-        desde = new Date(refDate.getFullYear(), refDate.getMonth(), 1);
-        hasta = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0);
-      } else if (type === 'mes_anterior') {
-        desde = new Date(refDate.getFullYear(), refDate.getMonth() - 1, 1);
-        hasta = new Date(refDate.getFullYear(), refDate.getMonth(), 0);
-      }
+      let desde = new Date(refDate), hasta = new Date(refDate);
+      if (type === 'ayer') { desde.setDate(refDate.getDate() - 1); hasta.setDate(refDate.getDate() - 1); } 
+      else if (type === 'semana') desde.setDate(refDate.getDate() - 7);
+      else if (type === 'mes_actual') { desde = new Date(refDate.getFullYear(), refDate.getMonth(), 1); hasta = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0); } 
+      else if (type === 'mes_anterior') { desde = new Date(refDate.getFullYear(), refDate.getMonth() - 1, 1); hasta = new Date(refDate.getFullYear(), refDate.getMonth(), 0); }
 
       document.getElementById('fechaDesde').value = formatDateKey(desde);
       document.getElementById('fechaHasta').value = formatDateKey(hasta);
-
       procesarYActualizar();
     }
 
     function filtrarPorMes(mesNum) {
       if (!mesNum) return;
       const anio = 2026;
-      const desde = new Date(anio, parseInt(mesNum) - 1, 1);
-      const hasta = new Date(anio, parseInt(mesNum), 0);
-
-      document.getElementById('fechaDesde').value = formatDateKey(desde);
-      document.getElementById('fechaHasta').value = formatDateKey(hasta);
-
+      document.getElementById('fechaDesde').value = formatDateKey(new Date(anio, parseInt(mesNum) - 1, 1));
+      document.getElementById('fechaHasta').value = formatDateKey(new Date(anio, parseInt(mesNum), 0));
       procesarYActualizar();
     }
+    function applyCustomDates() { procesarYActualizar(); }
 
-    function applyCustomDates() {
-      procesarYActualizar();
+    // =========================================================================
+    // HELPER PARA GENERAR EL RANGO COMPLETO DE DÍAS (SÁBADOS Y DOMINGOS INCLUIDOS)
+    // =========================================================================
+    function generateFullDateRange(fechaDesdeStr, fechaHastaStr, fallbackDataset) {
+      let start = fechaDesdeStr ? new Date(fechaDesdeStr + 'T00:00:00') : null;
+      let end = fechaHastaStr ? new Date(fechaHastaStr + 'T00:00:00') : null;
+
+      if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
+        let allDates = [];
+        if (Array.isArray(fallbackDataset)) {
+          fallbackDataset.forEach(arr => {
+            if (Array.isArray(arr)) {
+              arr.forEach(r => { if (r && r.fechaStr) allDates.push(r.fechaStr); });
+            }
+          });
+        }
+        if (allDates.length === 0) return [];
+        allDates.sort();
+        start = new Date(allDates[0] + 'T00:00:00');
+        end = new Date(allDates[allDates.length - 1] + 'T00:00:00');
+      }
+
+      const list = [];
+      let curr = new Date(start);
+      while (curr <= end) {
+        list.push(formatDateKey(curr));
+        curr.setDate(curr.getDate() + 1);
+      }
+      return list;
     }
 
-    // MAIN FILTERING & RENDERING LOGIC
+    function agruparLlamadasPorDia(data, fechaDesdeStr, fechaHastaStr) {
+      const fullDates = generateFullDateRange(fechaDesdeStr, fechaHastaStr, [data]);
+      const map = new Map();
+      
+      data.forEach(r => {
+        if (!map.has(r.fechaStr)) map.set(r.fechaStr, { atendidas: 0, abandonadas: 0, slaCount: 0, total: 0 });
+        const m = map.get(r.fechaStr);
+        m.total++;
+        if (r.atendida) { 
+          m.atendidas++; 
+          if (r.esperaSeg <= SLA_META_SEGUNDOS) m.slaCount++; 
+        } else { 
+          m.abandonadas++; 
+        }
+      });
+
+      return {
+        diasNum: fullDates.map(k => new Date(k + 'T00:00:00').getDate()),
+        atendidas: fullDates.map(k => (map.has(k) && map.get(k).total > 0) ? map.get(k).atendidas : null),
+        abandonadas: fullDates.map(k => (map.has(k) && map.get(k).total > 0) ? map.get(k).abandonadas : null),
+        totales: fullDates.map(k => (map.has(k) && map.get(k).total > 0) ? map.get(k).total : null),
+        slaPctList: fullDates.map(k => {
+          if (!map.has(k) || map.get(k).total === 0) return null;
+          const t = map.get(k).total;
+          return parseFloat(((map.get(k).slaCount / t) * 100).toFixed(1));
+        })
+      };
+    }
+
+    function agruparLlamadasPorMes(data) {
+      const map = new Map();
+      data.forEach(r => {
+        const mes = r.fechaStr.substring(0, 7);
+        if (!map.has(mes)) map.set(mes, { atendidas: 0, abandonadas: 0, slaCount: 0 });
+        const m = map.get(mes);
+        if (r.atendida) { m.atendidas++; if (r.esperaSeg <= SLA_META_SEGUNDOS) m.slaCount++; } 
+        else { m.abandonadas++; }
+      });
+      const sorted = Array.from(map.keys()).sort();
+      return {
+        meses: sorted,
+        atendidas: sorted.map(k => map.get(k).atendidas),
+        abandonadas: sorted.map(k => map.get(k).abandonadas),
+        slaPctList: sorted.map(k => {
+          const t = map.get(k).atendidas + map.get(k).abandonadas;
+          return t > 0 ? ((map.get(k).slaCount / t) * 100).toFixed(1) : 0;
+        })
+      };
+    }
+
+    function agruparWisePorDia(data, fechaDesdeStr, fechaHastaStr) {
+      const fullDates = generateFullDateRange(fechaDesdeStr, fechaHastaStr, [data]);
+      const map = new Map();
+      data.forEach(r => {
+        if (!map.has(r.fechaStr)) map.set(r.fechaStr, { casos: 0, ahtTotal: 0 });
+        const m = map.get(r.fechaStr);
+        m.casos += r.casos; 
+        m.ahtTotal += (r.ahtSeg * r.casos);
+      });
+
+      return {
+        diasNum: fullDates.map(k => new Date(k + 'T00:00:00').getDate()),
+        casosList: fullDates.map(k => (map.has(k) && map.get(k).casos > 0) ? map.get(k).casos : null),
+        ahtPromList: fullDates.map(k => {
+          if (!map.has(k) || map.get(k).casos === 0) return null;
+          return parseFloat((map.get(k).ahtTotal / map.get(k).casos / 60).toFixed(1));
+        })
+      };
+    }
+
+    function agruparWisePorMes(data) {
+      const map = new Map();
+      data.forEach(r => {
+        const mes = r.fechaStr.substring(0, 7);
+        if (!map.has(mes)) map.set(mes, { casos: 0, ahtTotal: 0 });
+        const m = map.get(mes);
+        m.casos += r.casos; m.ahtTotal += (r.ahtSeg * r.casos);
+      });
+      const sorted = Array.from(map.keys()).sort();
+      return {
+        meses: sorted,
+        casosList: sorted.map(k => map.get(k).casos),
+        ahtPromList: sorted.map(k => map.get(k).casos > 0 ? map.get(k).ahtTotal / map.get(k).casos : 0)
+      };
+    }
+
+    function agruparTurnosPorMes(turnosData) {
+        const map = new Map();
+        turnosData.asistieron.forEach(r => {
+            const mes = r.fechaStr.substring(0, 7);
+            if (!map.has(mes)) map.set(mes, { asistieron: 0, noshow: 0 });
+            map.get(mes).asistieron++;
+        });
+        turnosData.noshow.forEach(r => {
+            const mes = r.fechaStr.substring(0, 7);
+            if (!map.has(mes)) map.set(mes, { asistieron: 0, noshow: 0 });
+            map.get(mes).noshow++;
+        });
+        const sorted = Array.from(map.keys()).sort();
+        return {
+            meses: sorted,
+            noshowPct: sorted.map(k => {
+                const t = map.get(k).asistieron + map.get(k).noshow;
+                return t > 0 ? (map.get(k).noshow / t * 100) : 0;
+            })
+        };
+    }
+
     function procesarYActualizar() {
-      const desdeStr = document.getElementById('fechaDesde').value;
-      const hastaStr = document.getElementById('fechaHasta').value;
+      const fechaDesde = document.getElementById('fechaDesde').value ? new Date(document.getElementById('fechaDesde').value + 'T00:00:00') : null;
+      const fechaHasta = document.getElementById('fechaHasta').value ? new Date(document.getElementById('fechaHasta').value + 'T23:59:59') : null;
       const asesorSel = document.getElementById('selectAsesor').value;
 
-      const fechaDesde = desdeStr ? new Date(desdeStr + 'T00:00:00') : null;
-      const fechaHasta = hastaStr ? new Date(hastaStr + 'T23:59:59') : null;
+      const fLlamadas = datosLlamadas.filter(r => (!fechaDesde || r.fecha >= fechaDesde) && (!fechaHasta || r.fecha <= fechaHasta) && (asesorSel === 'TODOS' || r.agente === asesorSel));
+      const fWise = datosWise.filter(r => (!fechaDesde || r.fecha >= fechaDesde) && (!fechaHasta || r.fecha <= fechaHasta) && (asesorSel === 'TODOS' || r.usuario === asesorSel));
+      const fTurnosCreados = datosTurnos.creados.filter(r => (!fechaDesde || r.fecha >= fechaDesde) && (!fechaHasta || r.fecha <= fechaHasta));
+      const fTurnosAsistieron = datosTurnos.asistieron.filter(r => (!fechaDesde || r.fecha >= fechaDesde) && (!fechaHasta || r.fecha <= fechaHasta));
+      const fTurnosNoShow = datosTurnos.noshow.filter(r => (!fechaDesde || r.fecha >= fechaDesde) && (!fechaHasta || r.fecha <= fechaHasta));
 
-      // Filtered datasets
-      const llamadasFiltradas = datosLlamadas.filter(r => {
-        if (fechaDesde && r.fecha < fechaDesde) return false;
-        if (fechaHasta && r.fecha > fechaHasta) return false;
-        if (asesorSel !== 'TODOS' && r.agente !== asesorSel) return false;
-        return true;
-      });
+      // KPIS Pestaña 1
+      const atendidasGlobal = fLlamadas.filter(r => r.atendida).length;
+      const abandonadas = fLlamadas.filter(r => !r.atendida).length;
+      const totalLlamadas = atendidasGlobal + abandonadas;
+      const totalCasosWise = fWise.reduce((acc, r) => acc + r.casos, 0);
 
-      const wiseFiltrado = datosWise.filter(r => {
-        if (fechaDesde && r.fecha < fechaDesde) return false;
-        if (fechaHasta && r.fecha > fechaHasta) return false;
-        if (asesorSel !== 'TODOS' && r.usuario !== asesorSel) return false;
-        return true;
-      });
-
-      const turnosCreadosFiltrados = datosTurnos.creados.filter(r => {
-        if (fechaDesde && r.fecha < fechaDesde) return false;
-        if (fechaHasta && r.fecha > fechaHasta) return false;
-        return true;
-      });
-
-      const turnosAsistieronFiltrados = datosTurnos.asistieron.filter(r => {
-        if (fechaDesde && r.fecha < fechaDesde) return false;
-        if (fechaHasta && r.fecha > fechaHasta) return false;
-        return true;
-      });
-
-      const turnosNoShowFiltrados = datosTurnos.noshow.filter(r => {
-        if (fechaDesde && r.fecha < fechaDesde) return false;
-        if (fechaHasta && r.fecha > fechaHasta) return false;
-        return true;
-      });
-
-      // UPDATE KPIS TAB 1
-      const atendidas = llamadasFiltradas.filter(r => r.atendida).length;
-      const abandonadas = llamadasFiltradas.filter(r => !r.atendida).length;
-      const totalLlamadas = atendidas + abandonadas;
-
-      const totalCasosWise = wiseFiltrado.reduce((acc, r) => acc + r.casos, 0);
-      const totalGestionesAtendidas = atendidas + totalCasosWise;
-
-      const totalTurnosCreados = turnosCreadosFiltrados.length;
+      const atendidasWise = fLlamadas.filter(r => r.atendida && asesoresWiseValidos.includes(r.agente)).length;
+      const totalGestionesAtendidas = atendidasWise + totalCasosWise;
+      const totalTurnosCreados = fTurnosCreados.length;
       const conversionPct = totalGestionesAtendidas > 0 ? ((totalTurnosCreados / totalGestionesAtendidas) * 100).toFixed(1) : '0.0';
 
-      const dentroSLA = llamadasFiltradas.filter(r => r.atendida && r.esperaSeg <= SLA_META_SEGUNDOS).length;
+      const dentroSLA = fLlamadas.filter(r => r.atendida && r.esperaSeg <= SLA_META_SEGUNDOS).length;
       const slaPct = totalLlamadas > 0 ? ((dentroSLA / totalLlamadas) * 100).toFixed(1) : '0.0';
+      const promEsperaSeg = totalLlamadas > 0 ? fLlamadas.reduce((acc, r) => acc + r.esperaSeg, 0) / totalLlamadas : 0;
+      const ahtLlamadasSeg = atendidasGlobal > 0 ? fLlamadas.filter(r => r.atendida).reduce((acc, r) => acc + r.duracionSeg, 0) / atendidasGlobal : 0;
+      const ahtWiseSeg = totalCasosWise > 0 ? fWise.reduce((acc, r) => acc + (r.ahtSeg * r.casos), 0) / totalCasosWise : 0;
 
-      // Espera promedio
-      const totalEsperaSeg = llamadasFiltradas.reduce((acc, r) => acc + r.esperaSeg, 0);
-      const promEsperaSeg = totalLlamadas > 0 ? totalEsperaSeg / totalLlamadas : 0;
-
-      // AHT Llamadas
-      const totalDuracionLlamadas = llamadasFiltradas.filter(r => r.atendida).reduce((acc, r) => acc + r.duracionSeg, 0);
-      const ahtLlamadasSeg = atendidas > 0 ? totalDuracionLlamadas / atendidas : 0;
-
-      // AHT Wise
-      const totalAhtWiseSeg = wiseFiltrado.reduce((acc, r) => acc + (r.ahtSeg * r.casos), 0);
-      const ahtWiseSeg = totalCasosWise > 0 ? totalAhtWiseSeg / totalCasosWise : 0;
-
-      // Render KPIs DOM
       document.getElementById('kpiVolCasos').innerText = totalGestionesAtendidas;
       document.getElementById('kpiConversion').innerText = conversionPct + '%';
-      document.getElementById('kpiConversionSub').innerText = `${totalTurnosCreados} turnos / ${totalGestionesAtendidas} gestiones`;
+      document.getElementById('kpiConversionSub').innerText = `${totalTurnosCreados} Turnos / ${totalGestionesAtendidas} Gest.`;
+      
+      document.getElementById('kpiIngresadas').innerText = totalLlamadas;
+      document.getElementById('kpiIngresadasSub').innerText = `${totalLlamadas} Llamadas`;
 
-      document.getElementById('kpiAtendidas').innerText = atendidas;
-      document.getElementById('kpiAtendidasPct').innerText = totalLlamadas > 0 ? ((atendidas / totalLlamadas) * 100).toFixed(1) + '%' : '0%';
-
-      document.getElementById('kpiAbandonadas').innerText = abandonadas;
+      document.getElementById('kpiAtendidasPct').innerText = totalLlamadas > 0 ? ((atendidasGlobal / totalLlamadas) * 100).toFixed(1) + '%' : '0%';
+      document.getElementById('kpiAtendidasSub').innerText = `${atendidasGlobal} Llamadas`;
+      
       document.getElementById('kpiAbandonadasPct').innerText = totalLlamadas > 0 ? ((abandonadas / totalLlamadas) * 100).toFixed(1) + '%' : '0%';
+      document.getElementById('kpiAbandonadasSub').innerText = `${abandonadas} Llamadas`;
 
       document.getElementById('kpiSLA').innerText = slaPct + '%';
-      document.getElementById('kpiTiempoEspera').innerText = secondsToMMSS(promEsperaSeg);
-      document.getElementById('kpiAHTLlamadas').innerText = secondsToMMSS(ahtLlamadasSeg);
+      document.getElementById('kpiTiempoEspera').innerText = secondsToMMSS(promEsperaSeg) + ' Min';
+      document.getElementById('kpiAHTLlamadas').innerText = secondsToMMSS(ahtLlamadasSeg) + ' Min';
       document.getElementById('kpiCasosWise').innerText = totalCasosWise;
-      document.getElementById('kpiAHTWise').innerText = secondsToMMSS(ahtWiseSeg);
+      document.getElementById('kpiAHTWise').innerText = secondsToMMSS(ahtWiseSeg) + ' Min';
 
-      // TAB 3 KPIS
-      const totalAsistieron = turnosAsistieronFiltrados.length;
-      const totalNoShow = turnosNoShowFiltrados.length;
+      // KPIS Pestaña 3
+      const totalAsistieron = fTurnosAsistieron.length;
+      const totalNoShow = fTurnosNoShow.length;
       const totalAgendados = totalAsistieron + totalNoShow;
-
       const asistieronPct = totalAgendados > 0 ? ((totalAsistieron / totalAgendados) * 100).toFixed(1) : '0.0';
       const noShowPct = totalAgendados > 0 ? ((totalNoShow / totalAgendados) * 100).toFixed(1) : '0.0';
 
       document.getElementById('kpiTurnosTotal').innerText = totalAgendados;
-      document.getElementById('kpiTurnosAsistieron').innerText = totalAsistieron;
-      document.getElementById('kpiTurnosAsistieronPct').innerText = `${asistieronPct}% del total`;
-      document.getElementById('kpiTurnosNoShow').innerText = totalNoShow;
-      document.getElementById('kpiTurnosNoShowPct').innerText = `${noShowPct}% ausentismo`;
+      document.getElementById('kpiTurnosAsistieron').innerText = asistieronPct + '%';
+      document.getElementById('kpiTurnosAsistieronPct').innerText = `${totalAsistieron} turnos`;
+      document.getElementById('kpiTurnosNoShow').innerText = noShowPct + '%';
+      document.getElementById('kpiTurnosNoShowPct').innerText = `${totalNoShow} turnos`;
 
-      // RENDER ALL CHARTS & TABLES
-      renderChartsTab1(llamadasFiltradas, wiseFiltrado);
-      renderChartsTab2(llamadasFiltradas, wiseFiltrado);
-      renderChartsTab3(turnosAsistieronFiltrados, turnosNoShowFiltrados);
+      const turnosHistorico = agruparTurnosPorMes(datosTurnos);
+      if (turnosHistorico.meses.length >= 2) {
+          const last = turnosHistorico.noshowPct[turnosHistorico.noshowPct.length - 1];
+          const prev = turnosHistorico.noshowPct[turnosHistorico.noshowPct.length - 2];
+          const diff = (last - prev).toFixed(1);
+          const el = document.getElementById('kpiTurnosDelta');
+          if (diff <= 0) { el.className = 'text-2xl font-extrabold text-emerald-600 my-1'; el.innerText = diff + ' pts'; } 
+          else { el.className = 'text-2xl font-extrabold text-rose-600 my-1'; el.innerText = '+' + diff + ' pts'; }
+      }
 
-      renderTablaAsesores(llamadasFiltradas, wiseFiltrado, fechaDesde, fechaHasta);
-      renderParticipacionAsesor(llamadasFiltradas, wiseFiltrado);
+      renderChartsTab1(fLlamadas, fWise);
+      renderChartsTab2(fLlamadas, fWise);
+      renderChartsTab3(fTurnosAsistieron, fTurnosNoShow);
+      renderTablaAsesores(fLlamadas, fWise, fechaDesde, fechaHasta);
+      renderParticipacionAsesor(fLlamadas, fWise, fechaDesde, fechaHasta);
     }
 
     // =========================================================================
-    // CHART RENDERING FUNCTIONS
+    // RENDERING DE GRÁFICOS CON MANTENIMIENTO DE DÍAS Y CORTE DE LÍNEAS
     // =========================================================================
-
-    // TAB 1 CHARTS
     function renderChartsTab1(llamadasData, wiseData) {
-      // DEFAULT RANGE RULE: Daily charts by default display full month unless custom date selected
-      const agrupadoLlamadas = agruparLlamadasPorDia(llamadasData);
+      const fDesde = document.getElementById('fechaDesde').value;
+      const fHasta = document.getElementById('fechaHasta').value;
 
-      // 1. CHART: Llamadas Ingresadas y SLA % Diario
-      const ctx1 = document.getElementById('chartLlamadasSLA').getContext('2d');
+      const agrupadoLlamadas = agruparLlamadasPorDia(llamadasData, fDesde, fHasta);
+      
       if (chartLlamadasSLAInstance) chartLlamadasSLAInstance.destroy();
-
-      chartLlamadasSLAInstance = new Chart(ctx1, {
+      chartLlamadasSLAInstance = new Chart(document.getElementById('chartLlamadasSLA').getContext('2d'), {
         type: 'bar',
         data: {
           labels: agrupadoLlamadas.diasNum,
           datasets: [
-            {
-              type: 'line',
-              label: 'SLA %',
-              data: agrupadoLlamadas.slaPctList,
-              borderColor: '#2563eb',
-              backgroundColor: '#2563eb',
-              borderWidth: 2.5,
-              yAxisID: 'ySLA',
-              order: 1,
-              datalabels: {
-                align: 'top',
-                anchor: 'start',
-                offset: 4,
-                color: '#1e40af',
-                font: { weight: 'bold', size: 10 },
-                formatter: (val) => val + '%'
-              }
+            { 
+              type: 'line', 
+              label: 'SLA %', 
+              data: agrupadoLlamadas.slaPctList, 
+              borderColor: '#2563eb', 
+              backgroundColor: '#2563eb', 
+              borderWidth: 2.5, 
+              spanGaps: false, // Corta la línea en días sin datos
+              yAxisID: 'ySLA', 
+              order: 1, 
+              datalabels: { align: 'top', anchor: 'start', offset: 4, color: '#1e40af', font: { weight: 'bold', size: 10 }, formatter: v => v !== null ? v + '%' : '' } 
             },
-            {
-              type: 'bar',
-              label: 'Llamadas Ingresadas',
-              data: agrupadoLlamadas.totales,
-              backgroundColor: '#93c5fd',
-              borderRadius: 6,
-              yAxisID: 'yLlamadas',
-              order: 2,
-              datalabels: {
-                align: 'end',
-                anchor: 'end',
-                color: '#1e293b',
-                font: { weight: 'bold', size: 10 }
-              }
+            { 
+              type: 'bar', 
+              label: 'Llamadas Ingresadas', 
+              data: agrupadoLlamadas.totales, 
+              backgroundColor: '#93c5fd', 
+              borderRadius: 6, 
+              yAxisID: 'yLlamadas', 
+              order: 2, 
+              datalabels: { align: 'end', anchor: 'end', color: '#1e293b', font: { weight: 'bold', size: 10 }, formatter: v => v !== null ? v : '' } 
             }
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true, position: 'top' },
-            tooltip: { enabled: true }
-          },
-          scales: {
-            x: { grid: { display: false } },
-            yLlamadas: { type: 'linear', position: 'left', beginAtZero: true, grid: { color: '#f1f5f9' } },
-            ySLA: { type: 'linear', position: 'right', min: 0, max: 100, grid: { display: false }, ticks: { callback: v => v + '%' } }
-          }
-        }
+        options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 35 } }, plugins: { legend: { position: 'top', padding: {bottom: 20} } }, scales: { x: { grid: { display: false } }, yLlamadas: { type: 'linear', position: 'left', beginAtZero: true }, ySLA: { type: 'linear', position: 'right', min: 0, max: 110, grid: { display: false }, ticks: { callback: v => v + '%' } } } }
       });
 
-      // 1.1 Monthly SLA Chart Side-Block
-      const agrupadoMensualSLA = agruparLlamadasPorMes(datosLlamadas);
-      const ctx1m = document.getElementById('chartSlamensual').getContext('2d');
+      const mensualSLA = agruparLlamadasPorMes(datosLlamadas);
       if (chartSlaMensualInstance) chartSlaMensualInstance.destroy();
-
-      chartSlaMensualInstance = new Chart(ctx1m, {
-        type: 'bar',
-        data: {
-          labels: agrupadoMensualSLA.meses,
-          datasets: [{
-            label: 'SLA %',
-            data: agrupadoMensualSLA.slaPctList,
-            backgroundColor: '#3b82f6',
-            borderRadius: 6,
-            datalabels: {
-              align: 'center',
-              anchor: 'center',
-              color: '#ffffff',
-              font: { weight: 'bold', size: 10 },
-              formatter: (v) => v + '%'
-            }
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { y: { display: false, min: 0, max: 100 }, x: { grid: { display: false } } }
-        }
+      chartSlaMensualInstance = new Chart(document.getElementById('chartSlamensual').getContext('2d'), {
+        type: 'bar', data: { labels: mensualSLA.meses, datasets: [{ label: 'SLA %', data: mensualSLA.slaPctList, backgroundColor: '#3b82f6', borderRadius: 6, datalabels: { align: 'center', color: '#fff', font: { weight: 'bold', size: 10 }, formatter: v => v + '%' } }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false, min: 0, max: 100 }, x: { grid: { display: false } } } }
       });
 
-      // SLA Delta vs Prev Month
-      if (agrupadoMensualSLA.slaPctList.length >= 2) {
-        const last = agrupadoMensualSLA.slaPctList[agrupadoMensualSLA.slaPctList.length - 1];
-        const prev = agrupadoMensualSLA.slaPctList[agrupadoMensualSLA.slaPctList.length - 2];
-        const diff = (last - prev).toFixed(1);
+      if (mensualSLA.slaPctList.length >= 2) {
+        const diff = (mensualSLA.slaPctList[mensualSLA.slaPctList.length - 1] - mensualSLA.slaPctList[mensualSLA.slaPctList.length - 2]).toFixed(1);
         const el = document.getElementById('slaDeltaValue');
-        if (diff >= 0) {
-          el.className = 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700';
-          el.innerText = '+' + diff + '%';
-        } else {
-          el.className = 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
-          el.innerText = diff + '%';
-        }
+        el.className = diff >= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+        el.innerText = (diff >= 0 ? '+' : '') + diff + '%';
       }
 
-      // 2. CHART: Llamadas Atendidas vs Abandonadas por Día
-      const ctx2 = document.getElementById('chartAtendidasAbandonadas').getContext('2d');
       if (chartAtendidasAbandonadasInstance) chartAtendidasAbandonadasInstance.destroy();
-
-      chartAtendidasAbandonadasInstance = new Chart(ctx2, {
+      chartAtendidasAbandonadasInstance = new Chart(document.getElementById('chartAtendidasAbandonadas').getContext('2d'), {
         type: 'bar',
         data: {
           labels: agrupadoLlamadas.diasNum,
           datasets: [
-            {
-              label: 'Atendidas',
-              data: agrupadoLlamadas.atendidas,
-              backgroundColor: '#10b981',
-              stack: 'stack1',
-              datalabels: {
-                color: '#ffffff',
-                font: { weight: 'bold', size: 10 },
-                formatter: (val) => val > 0 ? val : ''
-              }
-            },
-            {
-              label: 'Abandonadas',
-              data: agrupadoLlamadas.abandonadas,
-              backgroundColor: '#ef4444',
-              stack: 'stack1',
-              datalabels: {
-                color: '#ffffff',
-                font: { weight: 'bold', size: 10 },
-                formatter: (val) => val > 0 ? val : ''
-              }
-            }
+            { label: 'Atendidas', data: agrupadoLlamadas.atendidas, backgroundColor: '#10b981', stack: 's1', datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, formatter: v => v > 0 ? v : '' } },
+            { label: 'Abandonadas', data: agrupadoLlamadas.abandonadas, backgroundColor: '#ef4444', stack: 's1', datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, formatter: v => v > 0 ? v : '' } }
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true, position: 'top' },
-            datalabels: { display: true }
-          },
-          scales: {
-            x: { stacked: true, grid: { display: false } },
-            y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
-          }
-        }
+        options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 35 } }, plugins: { legend: { position: 'top' } }, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true } } }
       });
 
-      // 2.1 Monthly Distribution Chart Side-Block
-      const ctx2m = document.getElementById('chartAtendidasAbandonadasMensual').getContext('2d');
       if (chartAtendidasAbandonadasMensualInstance) chartAtendidasAbandonadasMensualInstance.destroy();
-
-      chartAtendidasAbandonadasMensualInstance = new Chart(ctx2m, {
-        type: 'bar',
-        data: {
-          labels: agrupadoMensualSLA.meses,
-          datasets: [
-            { label: 'Atendidas', data: agrupadoMensualSLA.atendidas, backgroundColor: '#10b981', stack: 's1' },
-            { label: 'Abandonadas', data: agrupadoMensualSLA.abandonadas, backgroundColor: '#ef4444', stack: 's1' }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false }, datalabels: { display: false } },
-          scales: { x: { stacked: true }, y: { stacked: true, display: false } }
-        }
+      chartAtendidasAbandonadasMensualInstance = new Chart(document.getElementById('chartAtendidasAbandonadasMensual').getContext('2d'), {
+        type: 'bar', data: { labels: mensualSLA.meses, datasets: [{ label: 'Atendidas', data: mensualSLA.atendidas, backgroundColor: '#10b981', stack: 's1' }, { label: 'Abandonadas', data: mensualSLA.abandonadas, backgroundColor: '#ef4444', stack: 's1' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { x: { stacked: true }, y: { stacked: true, display: false } } }
       });
 
-      // 3. CHART: Wise CX Casos Atendidos por Día y AHT Promedio
-      const agrupadoWise = agruparWisePorDia(wiseData);
-      const ctx3 = document.getElementById('chartWiseAHT').getContext('2d');
-      if (chartWiseAHTInstance) chartWiseAHTInstance.destroy();
+      if (mensualSLA.meses.length >= 2) {
+        const lAband = mensualSLA.abandonadas[mensualSLA.abandonadas.length - 1], lAtend = mensualSLA.atendidas[mensualSLA.atendidas.length - 1];
+        const pAband = mensualSLA.abandonadas[mensualSLA.abandonadas.length - 2], pAtend = mensualSLA.atendidas[mensualSLA.atendidas.length - 2];
+        const lPct = (lAtend+lAband) > 0 ? (lAband/(lAtend+lAband)*100) : 0;
+        const pPct = (pAtend+pAband) > 0 ? (pAband/(pAtend+pAband)*100) : 0;
+        const diff = (lPct - pPct).toFixed(1);
+        const el = document.getElementById('abandDeltaValue');
+        el.className = diff <= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+        el.innerText = (diff > 0 ? '+' : '') + diff + '%';
+      }
 
-      chartWiseAHTInstance = new Chart(ctx3, {
+      const agrupadoWise = agruparWisePorDia(wiseData, fDesde, fHasta);
+      if (chartWiseAHTInstance) chartWiseAHTInstance.destroy();
+      chartWiseAHTInstance = new Chart(document.getElementById('chartWiseAHT').getContext('2d'), {
         type: 'bar',
         data: {
           labels: agrupadoWise.diasNum,
           datasets: [
-            {
-              type: 'line',
-              label: 'AHT Prom. (seg)',
-              data: agrupadoWise.ahtPromList,
-              borderColor: '#06b6d4',
-              backgroundColor: '#06b6d4',
-              borderWidth: 2,
-              yAxisID: 'yAHT',
-              order: 1,
-              datalabels: {
-                align: 'top',
-                color: '#0891b2',
-                font: { weight: 'bold', size: 9 },
-                formatter: (v) => secondsToMMSS(v)
-              }
+            { 
+              type: 'line', 
+              label: 'AHT Prom. (min)', 
+              data: agrupadoWise.ahtPromList, 
+              borderColor: '#06b6d4', 
+              backgroundColor: '#06b6d4', 
+              borderWidth: 2, 
+              spanGaps: false, // Corta la línea si no hay datos
+              yAxisID: 'yAHT', 
+              order: 1, 
+              datalabels: { align: 'top', color: '#0891b2', font: { weight: 'bold', size: 9 }, formatter: v => v !== null ? v + ' min' : '' } 
             },
-            {
-              type: 'bar',
-              label: 'Casos Atendidos Wise',
-              data: agrupadoWise.casosList,
-              backgroundColor: '#a5f3fc',
-              borderRadius: 6,
-              yAxisID: 'yCasos',
-              order: 2,
-              datalabels: {
-                align: 'end',
-                anchor: 'end',
-                color: '#0f172a',
-                font: { weight: 'bold', size: 10 }
-              }
+            { 
+              type: 'bar', 
+              label: 'Casos Atendidos', 
+              data: agrupadoWise.casosList, 
+              backgroundColor: '#a5f3fc', 
+              borderRadius: 6, 
+              yAxisID: 'yCasos', 
+              order: 2, 
+              datalabels: { align: 'end', anchor: 'end', color: '#0f172a', font: { weight: 'bold', size: 10 }, formatter: v => v !== null ? v : '' } 
             }
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: true, position: 'top' } },
-          scales: {
-            x: { grid: { display: false } },
-            yCasos: { type: 'linear', position: 'left', beginAtZero: true },
-            yAHT: { type: 'linear', position: 'right', beginAtZero: true, grid: { display: false } }
-          }
-        }
+        options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 35 } }, plugins: { legend: { position: 'top' } }, scales: { x: { grid: { display: false } }, yCasos: { type: 'linear', position: 'left', beginAtZero: true }, yAHT: { type: 'linear', position: 'right', beginAtZero: true, grid: { display: false } } } }
       });
 
-      // 3.1 Monthly Wise Chart
       const agrupadoWiseMensual = agruparWisePorMes(datosWise);
-      const ctx3m = document.getElementById('chartWiseAHTMensual').getContext('2d');
       if (chartWiseAHTMensualInstance) chartWiseAHTMensualInstance.destroy();
-
-      chartWiseAHTMensualInstance = new Chart(ctx3m, {
-        type: 'bar',
-        data: {
-          labels: agrupadoWiseMensual.meses,
-          datasets: [{
-            label: 'Casos Wise',
-            data: agrupadoWiseMensual.casosList,
-            backgroundColor: '#06b6d4',
-            borderRadius: 6,
-            datalabels: { color: '#ffffff', font: { weight: 'bold', size: 10 } }
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { x: { grid: { display: false } }, y: { display: false } }
-        }
+      chartWiseAHTMensualInstance = new Chart(document.getElementById('chartWiseAHTMensual').getContext('2d'), {
+        type: 'bar', data: { labels: agrupadoWiseMensual.meses, datasets: [{ label: 'Casos Atendidos', data: agrupadoWiseMensual.casosList, backgroundColor: '#06b6d4', borderRadius: 6, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 } } }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { display: false } } }
       });
 
+      if (agrupadoWiseMensual.ahtPromList.length >= 2) {
+        const lAHT = agrupadoWiseMensual.ahtPromList[agrupadoWiseMensual.ahtPromList.length - 1] / 60;
+        const pAHT = agrupadoWiseMensual.ahtPromList[agrupadoWiseMensual.ahtPromList.length - 2] / 60;
+        const diff = (lAHT - pAHT).toFixed(1);
+        const el = document.getElementById('ahtDeltaValue');
+        el.className = diff <= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+        el.innerText = (diff > 0 ? '+' : '') + diff + ' min';
+      }
     }
 
-    // TAB 2 CHARTS
     function renderChartsTab2(llamadasData, wiseData) {
-      // Filter telephony to ONLY advisors present in Wise
-      const llamadasWiseAdvisors = llamadasData.filter(r => r.agente && asesoresWiseValidos.includes(r.agente));
+      const fDesde = document.getElementById('fechaDesde').value;
+      const fHasta = document.getElementById('fechaHasta').value;
 
-      const datesMap = new Map();
+      const llamadasWiseAdvisors = llamadasData.filter(r => r.agente && asesoresWiseValidos.includes(r.agente));
+      const fullDates = generateFullDateRange(fDesde, fHasta, [llamadasWiseAdvisors, wiseData]);
+
+      const map = new Map();
       llamadasWiseAdvisors.forEach(r => {
-        if (!datesMap.has(r.fechaStr)) datesMap.set(r.fechaStr, { llamadas: 0, wise: 0, dateObj: r.fecha });
-        if (r.atendida) datesMap.get(r.fechaStr).llamadas++;
+        if (!map.has(r.fechaStr)) map.set(r.fechaStr, { llamadas: 0, wise: 0, tieneDatos: true });
+        if (r.atendida) map.get(r.fechaStr).llamadas++;
       });
       wiseData.forEach(r => {
-        if (!datesMap.has(r.fechaStr)) datesMap.set(r.fechaStr, { llamadas: 0, wise: 0, dateObj: r.fecha });
-        datesMap.get(r.fechaStr).wise += r.casos;
+        if (!map.has(r.fechaStr)) map.set(r.fechaStr, { llamadas: 0, wise: 0, tieneDatos: true });
+        map.get(r.fechaStr).wise += r.casos;
       });
 
-      const sortedKeys = Array.from(datesMap.keys()).sort();
-      const diasNum = sortedKeys.map(k => new Date(k + 'T00:00:00').getDate());
-      const llamadasVals = sortedKeys.map(k => datesMap.get(k).llamadas);
-      const wiseVals = sortedKeys.map(k => datesMap.get(k).wise);
+      const diasNum = fullDates.map(k => new Date(k + 'T00:00:00').getDate());
+      const wiseSeries = fullDates.map(k => map.has(k) ? map.get(k).wise : null);
+      const llamadasSeries = fullDates.map(k => map.has(k) ? map.get(k).llamadas : null);
 
-      const ctx = document.getElementById('chartEvolucionWiseLlamadas').getContext('2d');
       if (chartEvolucionWiseLlamadasInstance) chartEvolucionWiseLlamadasInstance.destroy();
-
-      chartEvolucionWiseLlamadasInstance = new Chart(ctx, {
+      chartEvolucionWiseLlamadasInstance = new Chart(document.getElementById('chartEvolucionWiseLlamadas').getContext('2d'), {
         type: 'line',
         data: {
           labels: diasNum,
           datasets: [
-            {
-              label: 'Wise Casos Atendidos',
-              data: wiseVals,
-              borderColor: '#06b6d4',
-              backgroundColor: 'rgba(6, 182, 212, 0.1)',
-              fill: true,
-              tension: 0.3,
-              datalabels: { align: 'top', color: '#0891b2', font: { weight: 'bold', size: 10 } }
+            { 
+              label: 'Casos Atendidos', 
+              data: wiseSeries, 
+              borderColor: '#06b6d4', 
+              backgroundColor: 'rgba(6, 182, 212, 0.1)', 
+              fill: true, 
+              tension: 0.3, 
+              spanGaps: false, // Línea corta en días sin datos
+              datalabels: { align: 'top', color: '#0891b2', font: { weight: 'bold', size: 10 }, formatter: v => v !== null ? v : '' } 
             },
-            {
-              label: 'Llamadas Atendidas (Asesores Wise)',
-              data: llamadasVals,
-              borderColor: '#2563eb',
-              backgroundColor: 'rgba(37, 99, 235, 0.1)',
-              fill: true,
-              tension: 0.3,
-              datalabels: { align: 'bottom', color: '#1d4ed8', font: { weight: 'bold', size: 10 } }
+            { 
+              label: 'Llamadas Atendidas (Asesores)', 
+              data: llamadasSeries, 
+              borderColor: '#2563eb', 
+              backgroundColor: 'rgba(37, 99, 235, 0.1)', 
+              fill: true, 
+              tension: 0.3, 
+              spanGaps: false, // Línea corta en días sin datos
+              datalabels: { align: 'bottom', color: '#1d4ed8', font: { weight: 'bold', size: 10 }, formatter: v => v !== null ? v : '' } 
             }
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: true, position: 'top' } },
-          scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
-        }
+        options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 35 } }, plugins: { legend: { position: 'top' } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
       });
 
-      // Side Block Monthly Chart
       const monthsMap = new Map();
       datosWise.forEach(r => {
         const mKey = r.fechaStr.substring(0, 7);
@@ -1321,391 +1178,419 @@
       });
 
       const sortedMonths = Array.from(monthsMap.keys()).sort();
-      const wiseMonthVals = sortedMonths.map(k => monthsMap.get(k).wise);
-      const llamadasMonthVals = sortedMonths.map(k => monthsMap.get(k).llamadas);
-
-      const ctxM = document.getElementById('chartEvolucionWiseLlamadasMensual').getContext('2d');
       if (chartEvolucionWiseLlamadasMensualInstance) chartEvolucionWiseLlamadasMensualInstance.destroy();
-
-      chartEvolucionWiseLlamadasMensualInstance = new Chart(ctxM, {
+      chartEvolucionWiseLlamadasMensualInstance = new Chart(document.getElementById('chartEvolucionWiseLlamadasMensual').getContext('2d'), {
         type: 'bar',
         data: {
           labels: sortedMonths,
           datasets: [
-            { label: 'Wise', data: wiseMonthVals, backgroundColor: '#06b6d4' },
-            { label: 'Llamadas', data: llamadasMonthVals, backgroundColor: '#3b82f6' }
+            { label: 'Llamadas Atendidas', data: sortedMonths.map(k => monthsMap.get(k).llamadas), backgroundColor: '#3b82f6' },
+            { label: 'Casos Atendidos', data: sortedMonths.map(k => monthsMap.get(k).wise), backgroundColor: '#06b6d4' }
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: true, position: 'top' }, datalabels: { display: false } },
-          scales: { x: { grid: { display: false } }, y: { display: false } }
+        options: { 
+          indexAxis: 'y', 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { position: 'top' }, 
+            datalabels: { 
+              display: true,
+              color: '#ffffff',
+              font: { weight: 'bold', size: 11 },
+              formatter: v => v > 0 ? v : ''
+            } 
+          }, 
+          scales: { x: { stacked: true, grid: { display: false }, display: false }, y: { stacked: true } } 
         }
       });
+
+      if (sortedMonths.length >= 2) {
+        const lM = sortedMonths[sortedMonths.length - 1], pM = sortedMonths[sortedMonths.length - 2];
+        const lTot = monthsMap.get(lM).llamadas + monthsMap.get(lM).wise, pTot = monthsMap.get(pM).llamadas + monthsMap.get(pM).wise;
+        const lPct = lTot > 0 ? (monthsMap.get(lM).llamadas / lTot * 100) : 0;
+        const pPct = pTot > 0 ? (monthsMap.get(pM).llamadas / pTot * 100) : 0;
+        const diff = (lPct - pPct).toFixed(1);
+        const el = document.getElementById('tab2DeltaValue');
+        el.className = diff >= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+        el.innerText = (diff >= 0 ? '+' : '') + diff + ' pts';
+      }
     }
 
-    // TAB 3 CHARTS
+    // PANTALLA 3: VALORES FORZADOS EN EL PISO Y MANTENIMIENTO DE DÍAS SÍN BARRAS DE MÁS
     function renderChartsTab3(asistieronData, noShowData) {
-      const datesMap = new Map();
+      const fDesde = document.getElementById('fechaDesde').value;
+      const fHasta = document.getElementById('fechaHasta').value;
+
+      const fullDates = generateFullDateRange(fDesde, fHasta, [asistieronData, noShowData]);
+
+      const map = new Map();
       asistieronData.forEach(r => {
-        if (!datesMap.has(r.fechaStr)) datesMap.set(r.fechaStr, { asistieron: 0, noshow: 0 });
-        datesMap.get(r.fechaStr).asistieron++;
+        if (!map.has(r.fechaStr)) map.set(r.fechaStr, { asist: 0, noshow: 0, tieneDatos: true });
+        map.get(r.fechaStr).asist++;
       });
       noShowData.forEach(r => {
-        if (!datesMap.has(r.fechaStr)) datesMap.set(r.fechaStr, { asistieron: 0, noshow: 0 });
-        datesMap.get(r.fechaStr).noshow++;
+        if (!map.has(r.fechaStr)) map.set(r.fechaStr, { asist: 0, noshow: 0, tieneDatos: true });
+        map.get(r.fechaStr).noshow++;
       });
 
-      const sortedKeys = Array.from(datesMap.keys()).sort();
-      const diasNum = sortedKeys.map(k => new Date(k + 'T00:00:00').getDate());
-      const asistieronVals = sortedKeys.map(k => datesMap.get(k).asistieron);
-      const noShowVals = sortedKeys.map(k => datesMap.get(k).noshow);
+      const diasNum = fullDates.map(k => new Date(k + 'T00:00:00').getDate());
+      
+      const totalAgendadosList = fullDates.map(k => {
+        if (!map.has(k)) return null;
+        const tot = map.get(k).asist + map.get(k).noshow;
+        return tot > 0 ? tot : null;
+      });
 
-      const ctx = document.getElementById('chartTurnosNoShow').getContext('2d');
+      const noShowPctList = fullDates.map(k => {
+        if (!map.has(k)) return null;
+        const tot = map.get(k).asist + map.get(k).noshow;
+        return tot > 0 ? parseFloat((map.get(k).noshow / tot * 100).toFixed(1)) : null;
+      });
+
+      const validPcts = noShowPctList.filter(v => v !== null);
+      const maxNoShowVal = validPcts.length > 0 ? Math.max(...validPcts) : 0;
+      const yNoShowMax = Math.min(100, Math.max(35, Math.ceil(maxNoShowVal * 1.4)));
+
       if (chartTurnosNoShowInstance) chartTurnosNoShowInstance.destroy();
-
-      chartTurnosNoShowInstance = new Chart(ctx, {
+      chartTurnosNoShowInstance = new Chart(document.getElementById('chartTurnosNoShow').getContext('2d'), {
         type: 'bar',
         data: {
           labels: diasNum,
           datasets: [
-            {
-              label: 'Sí Vinieron (Asistieron)',
-              data: asistieronVals,
-              backgroundColor: '#10b981',
-              stack: 'turnosStack',
-              datalabels: {
-                color: '#ffffff',
-                font: { weight: 'bold', size: 10 },
-                formatter: v => v > 0 ? v : ''
-              }
+            { 
+              type: 'bar',
+              label: 'Total Agendados', 
+              data: totalAgendadosList, 
+              backgroundColor: '#3b82f6', // Azul suave corporativo agradable
+              borderRadius: 4,
+              yAxisID: 'yAgendados',
+              order: 2,
+              // VALORES FIJADOS ABAJO, EN EL PISO INFERIOR DE LA BARRA
+              datalabels: { 
+                anchor: 'start', 
+                align: 'end',
+                offset: 4,
+                color: '#ffffff', 
+                font: { weight: 'bold', size: 9 }, 
+                formatter: v => v !== null ? v : '' 
+              } 
             },
-            {
-              label: 'Faltaron (No-Show)',
-              data: noShowVals,
-              backgroundColor: '#ef4444',
-              stack: 'turnosStack',
-              datalabels: {
-                color: '#ffffff',
-                font: { weight: 'bold', size: 10 },
-                formatter: v => v > 0 ? v : ''
-              }
+            { 
+              type: 'line',
+              label: '% No-Show', 
+              data: noShowPctList, 
+              borderColor: '#f43f5e', // Rojo suave no estridente
+              backgroundColor: '#f43f5e',
+              borderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointBackgroundColor: '#f43f5e',
+              tension: 0.2,
+              spanGaps: false, // Corta línea en fines de semana
+              yAxisID: 'yNoShow',
+              order: 1,
+              datalabels: { 
+                align: 'top', 
+                anchor: 'center',
+                offset: 6,
+                backgroundColor: '#ffffff',
+                borderColor: '#f43f5e',
+                borderWidth: 1.5,
+                borderRadius: 4,
+                color: '#e11d48', 
+                font: { weight: 'bold', size: 9 }, 
+                padding: { top: 2, bottom: 2, left: 4, right: 4 },
+                formatter: v => v !== null ? v.toFixed(1) + '%' : '' 
+              } 
             }
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true, position: 'top' }
-          },
-          scales: {
-            x: { stacked: true, grid: { display: false } },
-            y: { stacked: true, beginAtZero: true }
-          }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          layout: { padding: { top: 35 } }, 
+          plugins: { legend: { position: 'top' } }, 
+          scales: { 
+            x: { grid: { display: false } }, 
+            yAgendados: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Cantidad Turnos', font: { size: 10, weight: 'bold' } } },
+            yNoShow: { type: 'linear', position: 'right', min: 0, max: yNoShowMax, grid: { display: false }, ticks: { callback: v => v + '%' }, title: { display: true, text: '% No-Show', font: { size: 10, weight: 'bold' } } }
+          } 
         }
       });
 
-      // Side block monthly chart
-      const monthsMap = new Map();
-      datosTurnos.asistieron.forEach(r => {
-        const mKey = r.fechaStr.substring(0, 7);
-        if (!monthsMap.has(mKey)) monthsMap.set(mKey, { asistieron: 0, noshow: 0 });
-        monthsMap.get(mKey).asistieron++;
-      });
-      datosTurnos.noshow.forEach(r => {
-        const mKey = r.fechaStr.substring(0, 7);
-        if (!monthsMap.has(mKey)) monthsMap.set(mKey, { asistieron: 0, noshow: 0 });
-        monthsMap.get(mKey).noshow++;
-      });
+      const turnosHistorico = agruparTurnosPorMes(datosTurnos);
+      const histAsist = turnosHistorico.meses.map(m => datosTurnos.asistieron.filter(r => r.fechaStr.startsWith(m)).length);
+      const histNoshow = turnosHistorico.meses.map(m => datosTurnos.noshow.filter(r => r.fechaStr.startsWith(m)).length);
 
-      const sortedMonths = Array.from(monthsMap.keys()).sort();
-      const asistM = sortedMonths.map(k => monthsMap.get(k).asistieron);
-      const noShowM = sortedMonths.map(k => monthsMap.get(k).noshow);
-
-      const ctxM = document.getElementById('chartTurnosNoShowMensual').getContext('2d');
       if (chartTurnosNoShowMensualInstance) chartTurnosNoShowMensualInstance.destroy();
-
-      chartTurnosNoShowMensualInstance = new Chart(ctxM, {
+      chartTurnosNoShowMensualInstance = new Chart(document.getElementById('chartTurnosNoShowMensual').getContext('2d'), {
         type: 'bar',
         data: {
-          labels: sortedMonths,
+          labels: turnosHistorico.meses,
           datasets: [
-            { label: 'Asistieron', data: asistM, backgroundColor: '#10b981', stack: 'm1' },
-            { label: 'No-Show', data: noShowM, backgroundColor: '#ef4444', stack: 'm1' }
+            { label: 'Trabajos Realizados', data: histAsist, backgroundColor: '#10b981', borderRadius: 4 },
+            { label: 'No-Show', data: histNoshow, backgroundColor: '#f43f5e', borderRadius: 4 }
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false }, datalabels: { display: false } },
-          scales: { x: { stacked: true }, y: { display: false } }
+        options: { 
+          indexAxis: 'y',
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { position: 'bottom' }, 
+            datalabels: { 
+              display: true,
+              color: '#ffffff',
+              font: { weight: 'bold', size: 10 },
+              formatter: (value, ctx) => {
+                const total = ctx.chart.data.datasets[0].data[ctx.dataIndex] + ctx.chart.data.datasets[1].data[ctx.dataIndex];
+                if (total === 0) return '';
+                const pct = (value / total * 100).toFixed(1);
+                return pct > 3 ? pct + '%' : '';
+              }
+            } 
+          }, 
+          scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true } } 
         }
       });
     }
 
     // =========================================================================
-    // PARTICIPACIÓN POR ASESOR (BLOQUE RECTANGULAR)
+    // LÓGICA DE ASESORES
     // =========================================================================
-    function renderParticipacionAsesor(llamadasData, wiseData) {
-      const stats = calcularEstadisticasAsesores(llamadasData, wiseData);
-      const totalGlobal = stats.reduce((acc, a) => acc + a.totalGestiones, 0);
-
-      document.getElementById('participacionTotalNum').innerText = totalGlobal;
-
-      const container = document.getElementById('participacionBarContainer');
-      container.innerHTML = '';
-
-      if (totalGlobal === 0) {
-        container.innerHTML = '<div class="w-full text-center py-4 text-xs font-semibold text-slate-400">Sin gestiones para el período</div>';
-        return;
+    function calcularEstadisticasAsesores(llamadasData, wiseData, fechaDesde, fechaHasta) {
+      let diasPeriodo = 0;
+      if (fechaDesde && fechaHasta) {
+        const diffMs = Math.abs(fechaHasta.getTime() - fechaDesde.getTime());
+        diasPeriodo = Math.ceil(diffMs / (1000 * 60 * 60 * 24)) + 1;
+      } else {
+        const allDates = [...llamadasData.map(r => r.fechaStr), ...wiseData.map(r => r.fechaStr)];
+        if (allDates.length > 0) diasPeriodo = new Set(allDates).size;
       }
 
-      const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#6366f1', '#14b8a6', '#f97316'];
-
-      stats.forEach((item, idx) => {
-        if (item.totalGestiones === 0) return;
-        const pct = ((item.totalGestiones / totalGlobal) * 100).toFixed(1);
-        const color = colors[idx % colors.length];
-
-        const seg = document.createElement('div');
-        seg.style.width = pct + '%';
-        seg.style.backgroundColor = color;
-        seg.className = 'h-full transition-all cursor-pointer relative flex items-center justify-center text-white overflow-hidden hover:opacity-90';
-
-        seg.innerHTML = `
-          <div class="px-1 text-center truncate">
-            <span class="font-extrabold text-xs block leading-none">${pct}%</span>
-            <span class="text-[9px] font-semibold opacity-90 truncate block leading-none mt-0.5">${item.nombre}</span>
-          </div>
-        `;
-
-        seg.addEventListener('mouseenter', () => updateParticipacionDetail(item, pct, color));
-        container.appendChild(seg);
-      });
-
-      // Set default detail to top advisor
-      if (stats.length > 0) {
-        const topPct = ((stats[0].totalGestiones / totalGlobal) * 100).toFixed(1);
-        updateParticipacionDetail(stats[0], topPct, colors[0]);
-      }
-    }
-
-    function updateParticipacionDetail(item, pct, color) {
-      document.getElementById('partAvatar').style.backgroundColor = color;
-      document.getElementById('partAvatar').innerText = item.nombre.charAt(0);
-      document.getElementById('partAsesorNombre').innerText = item.nombre;
-      document.getElementById('partAsesorPct').innerText = `${pct}% del total de gestiones`;
-
-      document.getElementById('partTotalGestiones').innerText = item.totalGestiones;
-      document.getElementById('partTotalLlamadas').innerText = item.llamadasAtendidas;
-      document.getElementById('partTotalWise').innerText = item.casosWise;
-    }
-
-    // =========================================================================
-    // TABLA DETALLADA POR ASESOR
-    // =========================================================================
-    function calcularEstadisticasAsesores(llamadasData, wiseData) {
       const map = new Map();
-
-      // Initialize strictly with valid Wise advisors
       asesoresWiseValidos.forEach(nombre => {
         map.set(nombre, {
-          nombre: nombre,
-          llamadasAtendidas: 0,
-          llamadasTotales: 0,
-          diasLlamadasSet: new Set(),
-          esperaSegTotal: 0,
-          slaAtendidasCount: 0,
-          ahtLlamadasSegTotal: 0,
-          casosWise: 0,
-          diasWiseSet: new Set(),
-          ahtWiseSegTotal: 0
+          nombre: nombre, llamadasAtendidas: 0, llamadasTotales: 0, diasLlamadasSet: new Set(),
+          esperaSegTotal: 0, slaAtendidasCount: 0, ahtLlamadasSegTotal: 0,
+          casosWise: 0, diasWiseSet: new Set(), ahtWiseSegTotal: 0
         });
       });
 
-      // Sum telephony for matching advisors
       llamadasData.forEach(r => {
-        if (!r.agente || !map.has(r.agente)) return;
-        const entry = map.get(r.agente);
-        entry.diasLlamadasSet.add(r.fechaStr);
-        entry.llamadasTotales++;
-        entry.esperaSegTotal += r.esperaSeg;
-
+        if (!asesoresWiseValidos.includes(r.agente)) return;
+        const st = map.get(r.agente);
+        st.llamadasTotales++;
         if (r.atendida) {
-          entry.llamadasAtendidas++;
-          entry.ahtLlamadasSegTotal += r.duracionSeg;
-          if (r.esperaSeg <= SLA_META_SEGUNDOS) entry.slaAtendidasCount++;
+          st.llamadasAtendidas++; st.diasLlamadasSet.add(r.fechaStr); st.esperaSegTotal += r.esperaSeg; st.ahtLlamadasSegTotal += r.duracionSeg;
+          if (r.esperaSeg <= SLA_META_SEGUNDOS) st.slaAtendidasCount++;
         }
       });
 
-      // Sum Wise data
       wiseData.forEach(r => {
-        if (!r.usuario || !map.has(r.usuario)) return;
-        const entry = map.get(r.usuario);
-        entry.diasWiseSet.add(r.fechaStr);
-        entry.casosWise += r.casos;
-        entry.ahtWiseSegTotal += (r.ahtSeg * r.casos);
+        if (!asesoresWiseValidos.includes(r.usuario)) return;
+        const st = map.get(r.usuario);
+        st.casosWise += r.casos; st.ahtWiseSegTotal += (r.ahtSeg * r.casos); st.diasWiseSet.add(r.fechaStr);
       });
 
-      const list = Array.from(map.values()).map(e => {
-        const totalGestiones = e.llamadasAtendidas + e.casosWise;
+      if (diasPeriodo > 10) {
+        map.forEach(st => {
+          if (st.llamadasAtendidas < 5) {
+            st.llamadasAtendidas = 0;
+            st.llamadasTotales = 0;
+            st.diasLlamadasSet.clear();
+            st.esperaSegTotal = 0;
+            st.slaAtendidasCount = 0;
+            st.ahtLlamadasSegTotal = 0;
+          }
+        });
+      }
+
+      return Array.from(map.values()).map(st => {
+        const totalGestiones = st.llamadasAtendidas + st.casosWise;
         return {
-          ...e,
-          totalGestiones: totalGestiones,
-          diasLlamadasCnt: e.diasLlamadasSet.size || 1,
-          diasWiseCnt: e.diasWiseSet.size || 1
+          nombre: st.nombre,
+          llamadasAtendidas: st.llamadasAtendidas,
+          promLlamDia: st.diasLlamadasSet.size > 0 ? st.llamadasAtendidas / st.diasLlamadasSet.size : 0,
+          velAtencion: st.llamadasAtendidas > 0 ? st.esperaSegTotal / st.llamadasAtendidas : 0,
+          slaPct: st.llamadasTotales > 0 ? (st.slaAtendidasCount / st.llamadasTotales) * 100 : 0,
+          ahtLlam: st.llamadasAtendidas > 0 ? st.ahtLlamadasSegTotal / st.llamadasAtendidas : 0,
+          casosWise: st.casosWise,
+          promWiseDia: st.diasWiseSet.size > 0 ? st.casosWise / st.diasWiseSet.size : 0,
+          ahtWise: st.casosWise > 0 ? st.ahtWiseSegTotal / st.casosWise : 0,
+          totalGestiones
         };
-      });
-
-      list.sort((a, b) => b.totalGestiones - a.totalGestiones);
-      return list;
+      }).sort((a, b) => b.totalGestiones - a.totalGestiones);
     }
 
     function renderTablaAsesores(llamadasData, wiseData, fechaDesde, fechaHasta) {
+      const stats = calcularEstadisticasAsesores(llamadasData, wiseData, fechaDesde, fechaHasta);
       const tbody = document.getElementById('tablaAsesoresBody');
       tbody.innerHTML = '';
-
-      const stats = calcularEstadisticasAsesores(llamadasData, wiseData);
-      const totalGlobalGestiones = stats.reduce((acc, a) => acc + a.totalGestiones, 0);
-
-      // Check selected day count
-      let numDiasSeleccionados = 1;
-      if (fechaDesde && fechaHasta) {
-        const diffTime = Math.abs(fechaHasta - fechaDesde);
-        numDiasSeleccionados = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      }
-
-      if (stats.length === 0 || totalGlobalGestiones === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-400 italic">No hay datos registrados para los filtros seleccionados</td></tr>';
+      if (stats.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-400 italic">No hay datos para mostrar</td></tr>';
         return;
       }
+      const totalGlobal = stats.reduce((acc, s) => acc + s.totalGestiones, 0);
 
-      stats.forEach(item => {
-        const promLlamDia = numDiasSeleccionados > 1 ? (item.llamadasAtendidas / numDiasSeleccionados).toFixed(1) : item.llamadasAtendidas;
-        const velEsperaSeg = item.llamadasTotales > 0 ? (item.esperaSegTotal / item.llamadasTotales) : 0;
-        const slaPct = item.llamadasTotales > 0 ? ((item.slaAtendidasCount / item.llamadasTotales) * 100).toFixed(1) : '0.0';
-        const ahtLlamSeg = item.llamadasAtendidas > 0 ? (item.ahtLlamadasSegTotal / item.llamadasAtendidas) : 0;
-
-        const promWiseDia = numDiasSeleccionados > 1 ? (item.casosWise / numDiasSeleccionados).toFixed(1) : item.casosWise;
-        const ahtWiseSeg = item.casosWise > 0 ? (item.ahtWiseSegTotal / item.casosWise) : 0;
-
-        const pctParticipacion = totalGlobalGestiones > 0 ? ((item.totalGestiones / totalGlobalGestiones) * 100).toFixed(1) : '0.0';
-
+      stats.forEach(st => {
+        if (st.totalGestiones === 0) return;
+        const partPct = totalGlobal > 0 ? ((st.totalGestiones / totalGlobal) * 100).toFixed(1) : 0;
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50/80 transition-colors';
         tr.innerHTML = `
-          <td class="p-3 font-bold text-slate-800 flex items-center gap-2">
-            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] uppercase font-bold">
-              ${item.nombre.charAt(0)}
-            </div>
-            ${item.nombre}
-          </td>
-          <td class="p-3 text-right font-semibold">${item.llamadasAtendidas}</td>
-          <td class="p-3 text-right text-slate-500">${promLlamDia}</td>
-          <td class="p-3 text-right font-mono">${secondsToMMSS(velEsperaSeg)}</td>
-          <td class="p-3 text-right font-bold ${parseFloat(slaPct) >= 80 ? 'text-emerald-600' : 'text-amber-600'}">${slaPct}%</td>
-          <td class="p-3 text-right font-mono">${secondsToMMSS(ahtLlamSeg)}</td>
-          <td class="p-3 text-right font-semibold text-cyan-700">${item.casosWise}</td>
-          <td class="p-3 text-right text-slate-500">${promWiseDia}</td>
-          <td class="p-3 text-right font-mono">${secondsToMMSS(ahtWiseSeg)}</td>
-          <td class="p-3 text-right font-extrabold text-blue-700 bg-blue-50/30">${item.totalGestiones}</td>
-          <td class="p-3 text-right font-extrabold text-purple-700 bg-purple-50/30">${pctParticipacion}%</td>
+          <td class="p-3 font-bold text-slate-800">${st.nombre}</td>
+          <td class="p-3 text-right">${st.llamadasAtendidas}</td>
+          <td class="p-3 text-right">${st.promLlamDia.toFixed(1)}</td>
+          <td class="p-3 text-right">${secondsToMMSS(st.velAtencion)}</td>
+          <td class="p-3 text-right">${st.slaPct.toFixed(1)}%</td>
+          <td class="p-3 text-right">${secondsToMMSS(st.ahtLlam)}</td>
+          <td class="p-3 text-right">${st.casosWise}</td>
+          <td class="p-3 text-right">${st.promWiseDia.toFixed(1)}</td>
+          <td class="p-3 text-right">${secondsToMMSS(st.ahtWise)}</td>
+          <td class="p-3 text-right font-extrabold text-blue-700 bg-blue-50/50">${st.totalGestiones}</td>
+          <td class="p-3 text-right font-extrabold text-purple-700 bg-purple-50/50">${partPct}%</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // DATA GROUPING HELPERS
-    function agruparLlamadasPorDia(data) {
-      const map = new Map();
-      data.forEach(r => {
-        if (!map.has(r.fechaStr)) {
-          map.set(r.fechaStr, { dateObj: r.fecha, atendidas: 0, abandonadas: 0, dentroSLA: 0 });
-        }
-        const entry = map.get(r.fechaStr);
-        if (r.atendida) {
-          entry.atendidas++;
-          if (r.esperaSeg <= SLA_META_SEGUNDOS) entry.dentroSLA++;
-        } else {
-          entry.abandonadas++;
-        }
-      });
+    // =========================================================================
+    // PARTICIPACIÓN POR ASESOR CON UNIFICACIÓN, ESTIRADO HACIA ABAJO Y DERECHA
+    // =========================================================================
+    const COLOR_PALETTE = ['#2563eb', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#6366f1', '#14b8a6', '#f97316'];
 
-      const sortedKeys = Array.from(map.keys()).sort();
-      const diasNum = sortedKeys.map(k => new Date(k + 'T00:00:00').getDate());
-      const atendidas = sortedKeys.map(k => map.get(k).atendidas);
-      const abandonadas = sortedKeys.map(k => map.get(k).abandonadas);
-      const totales = sortedKeys.map(k => map.get(k).atendidas + map.get(k).abandonadas);
-      const slaPctList = sortedKeys.map(k => {
-        const tot = map.get(k).atendidas + map.get(k).abandonadas;
-        return tot > 0 ? parseFloat(((map.get(k).dentroSLA / tot) * 100).toFixed(1)) : 0;
-      });
+    function renderParticipacionAsesor(llamadasData, wiseData, fechaDesde, fechaHasta) {
+      const stats = calcularEstadisticasAsesores(llamadasData, wiseData, fechaDesde, fechaHasta);
+      const totalGlobal = stats.reduce((acc, a) => acc + a.totalGestiones, 0);
+      document.getElementById('participacionTotalNum').innerText = totalGlobal;
+      
+      const container = document.getElementById('participacionBarContainer');
+      const btnVerTodos = document.getElementById('btnVerTodosAsesores');
 
-      return { sortedKeys, diasNum, atendidas, abandonadas, totales, slaPctList };
+      container.innerHTML = '';
+      if (totalGlobal === 0) {
+        container.innerHTML = '<div class="w-full text-center py-4 text-xs font-semibold text-slate-400">Sin gestiones para el período</div>';
+        btnVerTodos.classList.add('hidden');
+        return;
+      }
+
+      const activeStats = stats.filter(s => s.totalGestiones > 0);
+
+      // ESTADO 1: SIN SELECCIONAR (Barra normal proporcional)
+      if (!selectedAsesorParticipacion) {
+        container.className = "w-full h-24 bg-slate-100 rounded-b-2xl overflow-hidden flex shadow-inner border border-slate-200 transition-all duration-500";
+        btnVerTodos.classList.add('hidden');
+
+        activeStats.forEach((item, idx) => {
+          const pct = ((item.totalGestiones / totalGlobal) * 100).toFixed(1);
+          const color = COLOR_PALETTE[idx % COLOR_PALETTE.length];
+          const seg = document.createElement('div');
+          
+          seg.style.width = pct + '%'; 
+          seg.style.backgroundColor = color;
+          seg.className = 'h-full transition-all duration-300 cursor-pointer relative flex flex-col items-center justify-center text-white overflow-hidden hover:brightness-110 p-1';
+          
+          const pctFontSize = Math.max(11, Math.min(22, Math.round(pct * 1.0)));
+          const nameFontSize = Math.max(9, Math.min(12, Math.round(pct * 0.5)));
+
+          seg.innerHTML = `
+            <span class="font-extrabold leading-tight block truncate drop-shadow-sm" style="font-size: ${pctFontSize}px">${pct}%</span>
+            <span class="font-bold opacity-95 leading-tight block truncate max-w-full mt-0.5" style="font-size: ${nameFontSize}px">${item.nombre}</span>
+          `;
+          
+          seg.addEventListener('click', () => {
+            selectedAsesorParticipacion = item.nombre;
+            renderParticipacionAsesor(llamadasData, wiseData, fechaDesde, fechaHasta);
+          });
+          container.appendChild(seg);
+        });
+      } 
+      // ESTADO 2: SELECCIONADO (CUADRO UNIFICADO QUE SE ESTIRA ABAJO Y HASTA LA DERECHA)
+      else {
+        btnVerTodos.classList.remove('hidden');
+
+        const selectedItem = activeStats.find(s => s.nombre === selectedAsesorParticipacion) || activeStats[0];
+        const selectedIdx = activeStats.indexOf(selectedItem);
+        const selectedColor = COLOR_PALETTE[selectedIdx % COLOR_PALETTE.length];
+        const selectedPct = ((selectedItem.totalGestiones / totalGlobal) * 100).toFixed(1);
+        const otherStats = activeStats.filter(s => s.nombre !== selectedItem.nombre);
+
+        container.className = "w-full bg-slate-900 rounded-b-2xl overflow-hidden shadow-xl border border-slate-800 transition-all duration-500 flex flex-col md:flex-row min-h-[190px]";
+
+        // Bloque Izquierdo Unificado del Asesor Seleccionado
+        const leftBlock = document.createElement('div');
+        leftBlock.style.backgroundColor = selectedColor;
+        leftBlock.className = 'w-full md:w-1/3 p-6 flex flex-col items-center justify-center text-center text-white transition-all duration-500 shadow-lg shrink-0';
+        leftBlock.innerHTML = `
+          <div class="w-14 h-14 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-2xl font-black mb-2 shadow-inner">
+            ${selectedItem.nombre.charAt(0)}
+          </div>
+          <h3 class="text-2xl font-black tracking-tight leading-tight mb-1 text-center drop-shadow-sm">${selectedItem.nombre}</h3>
+          <p class="text-sm font-extrabold opacity-95 text-center">${selectedPct}% del total de gestiones</p>
+        `;
+        leftBlock.addEventListener('click', () => deselectAsesorParticipacion());
+
+        // Bloque Derecho (Demás asesores arriba comprimidos + Info centrada desplegada a la derecha)
+        const rightBlock = document.createElement('div');
+        rightBlock.className = 'flex-1 p-4 flex flex-col justify-between bg-slate-900 text-white min-w-0';
+
+        // Tira superior con los demás asesores
+        const topRow = document.createElement('div');
+        topRow.className = 'w-full h-10 rounded-xl overflow-hidden flex bg-slate-800/80 border border-slate-700/50 mb-3';
+
+        otherStats.forEach((item) => {
+          const idx = activeStats.indexOf(item);
+          const pct = ((item.totalGestiones / totalGlobal) * 100).toFixed(1);
+          const color = COLOR_PALETTE[idx % COLOR_PALETTE.length];
+          const seg = document.createElement('div');
+          
+          seg.style.width = pct + '%'; 
+          seg.style.backgroundColor = color;
+          seg.className = 'h-full cursor-pointer flex items-center justify-center text-white opacity-80 hover:opacity-100 transition-opacity p-1 text-center';
+          
+          seg.innerHTML = `
+            <span class="text-[10px] font-extrabold truncate block w-full leading-none">${pct}%</span>
+          `;
+          seg.title = `${item.nombre}: ${pct}%`;
+          seg.addEventListener('click', () => {
+            selectedAsesorParticipacion = item.nombre;
+            renderParticipacionAsesor(llamadasData, wiseData, fechaDesde, fechaHasta);
+          });
+          topRow.appendChild(seg);
+        });
+
+        // Área central de Métricas del Asesor Seleccionado centrada a la derecha
+        const metricsArea = document.createElement('div');
+        metricsArea.className = 'flex-1 flex items-center justify-center py-2';
+        metricsArea.innerHTML = `
+          <div class="grid grid-cols-3 gap-3 md:gap-6 w-full max-w-lg mx-auto text-center bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10">
+            <div>
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-slate-400 block mb-0.5">TOTAL GESTIONES</span>
+              <span class="text-2xl md:text-3xl font-black text-white leading-tight">${selectedItem.totalGestiones}</span>
+            </div>
+            <div class="border-l border-white/15 pl-2 md:pl-4">
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-slate-400 block mb-0.5">LLAMADAS ATENDIDAS</span>
+              <span class="text-2xl md:text-3xl font-black text-white leading-tight">${selectedItem.llamadasAtendidas}</span>
+            </div>
+            <div class="border-l border-white/15 pl-2 md:pl-4">
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-slate-400 block mb-0.5">CASOS</span>
+              <span class="text-2xl md:text-3xl font-black text-white leading-tight">${selectedItem.casosWise}</span>
+            </div>
+          </div>
+        `;
+
+        rightBlock.appendChild(topRow);
+        rightBlock.appendChild(metricsArea);
+
+        container.appendChild(leftBlock);
+        container.appendChild(rightBlock);
+      }
     }
 
-    function agruparWisePorDia(data) {
-      const map = new Map();
-      data.forEach(r => {
-        if (!map.has(r.fechaStr)) {
-          map.set(r.fechaStr, { dateObj: r.fecha, casos: 0, ahtTotalSeg: 0 });
-        }
-        const entry = map.get(r.fechaStr);
-        entry.casos += r.casos;
-        entry.ahtTotalSeg += (r.ahtSeg * r.casos);
-      });
-
-      const sortedKeys = Array.from(map.keys()).sort();
-      const diasNum = sortedKeys.map(k => new Date(k + 'T00:00:00').getDate());
-      const casosList = sortedKeys.map(k => map.get(k).casos);
-      const ahtPromList = sortedKeys.map(k => {
-        const c = map.get(k).casos;
-        return c > 0 ? Math.round(map.get(k).ahtTotalSeg / c) : 0;
-      });
-
-      return { sortedKeys, diasNum, casosList, ahtPromList };
-    }
-
-    function agruparLlamadasPorMes(data) {
-      const map = new Map();
-      data.forEach(r => {
-        const mKey = r.fechaStr.substring(0, 7);
-        if (!map.has(mKey)) map.set(mKey, { atendidas: 0, abandonadas: 0, dentroSLA: 0 });
-        const entry = map.get(mKey);
-        if (r.atendida) {
-          entry.atendidas++;
-          if (r.esperaSeg <= SLA_META_SEGUNDOS) entry.dentroSLA++;
-        } else {
-          entry.abandonadas++;
-        }
-      });
-
-      const meses = Array.from(map.keys()).sort();
-      const atendidas = meses.map(k => map.get(k).atendidas);
-      const abandonadas = meses.map(k => map.get(k).abandonadas);
-      const slaPctList = meses.map(k => {
-        const tot = map.get(k).atendidas + map.get(k).abandonadas;
-        return tot > 0 ? parseFloat(((map.get(k).dentroSLA / tot) * 100).toFixed(1)) : 0;
-      });
-
-      return { meses, atendidas, abandonadas, slaPctList };
-    }
-
-    function agruparWisePorMes(data) {
-      const map = new Map();
-      data.forEach(r => {
-        const mKey = r.fechaStr.substring(0, 7);
-        if (!map.has(mKey)) map.set(mKey, { casos: 0, ahtTotalSeg: 0 });
-        const entry = map.get(mKey);
-        entry.casos += r.casos;
-        entry.ahtTotalSeg += (r.ahtSeg * r.casos);
-      });
-
-      const meses = Array.from(map.keys()).sort();
-      const casosList = meses.map(k => map.get(k).casos);
-      return { meses, casosList };
+    function deselectAsesorParticipacion() {
+      selectedAsesorParticipacion = null;
+      procesarYActualizar();
     }
   </script>
 </body>
