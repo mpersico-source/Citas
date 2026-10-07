@@ -110,7 +110,6 @@
     <section id="filtersSection" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">Período:</span>
-        <button onclick="setPreset('hoy')" id="btnHoy" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">Hoy</button>
         <button onclick="setPreset('ayer')" id="btnAyer" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition-all">Ayer</button>
         <button onclick="setPreset('semana')" id="btnSemana" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">Última Semana</button>
         <button onclick="setPreset('mes_actual')" id="btnMesActual" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">Mes Actual</button>
@@ -257,7 +256,7 @@
             </div>
           </div>
           <div id="cardSlaDelta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
-            <span class="text-[11px] font-bold text-slate-600">SLA vs Mes Ant:</span>
+            <span id="slaDeltaLabel" class="text-[11px] font-bold text-slate-600">SLA vs Mes Ant:</span>
             <span id="slaDeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">-</span>
           </div>
         </div>
@@ -287,7 +286,7 @@
             </div>
           </div>
           <div id="cardAbandDelta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
-            <span class="text-[11px] font-bold text-slate-600">% Abandonadas vs Mes Ant:</span>
+            <span id="abandDeltaLabel" class="text-[11px] font-bold text-slate-600">% Abandono vs Mes Ant:</span>
             <span id="abandDeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">-</span>
           </div>
         </div>
@@ -317,7 +316,7 @@
             </div>
           </div>
           <div id="cardAhtDelta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
-            <span class="text-[11px] font-bold text-slate-600">AHT (min) vs Mes Ant:</span>
+            <span id="ahtDeltaLabel" class="text-[11px] font-bold text-slate-600">AHT vs Mes Ant:</span>
             <span id="ahtDeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">-</span>
           </div>
         </div>
@@ -347,7 +346,7 @@
             </div>
           </div>
           <div id="cardTab2Delta" class="mt-3 p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
-            <span class="text-[11px] font-bold text-slate-600">% Llamadas vs Mes Ant:</span>
+            <span id="tab2DeltaLabel" class="text-[11px] font-bold text-slate-600">% Llamadas vs Mes Ant:</span>
             <span id="tab2DeltaValue" class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">-</span>
           </div>
         </div>
@@ -438,9 +437,9 @@
           <span id="kpiTurnosNoShowPct" class="text-xs text-rose-600 font-bold">0 turnos</span>
         </div>
 
-        <!-- 4. Variación Con el Mes Anterior -->
+        <!-- 4. Variación Con el Mes Anterior / Período Comparado -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between text-center">
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">VARIACION CON EL MES ANTERIOR</span>
+          <span id="kpiTurnosDeltaTitle" class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">VARIACION CON EL MES ANTERIOR</span>
           <div id="kpiTurnosDelta" class="text-2xl font-extrabold text-slate-700 my-1">0.0%</div>
           <span class="text-[10px] text-slate-500 font-medium">Diferencia de puntos del % No-Show</span>
         </div>
@@ -483,6 +482,15 @@
 
     const SLA_META_SEGUNDOS = 20;
 
+    const NOMBRES_MESES = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    const NOMBRES_MESES_CORTOS = [
+      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ];
+
     let datosLlamadas = [];
     let datosWise = [];
     let datosTurnos = { creados: [], asistieron: [], noshow: [] };
@@ -490,6 +498,7 @@
 
     // Estado del Asesor seleccionado en Participación por Asesor
     let selectedAsesorParticipacion = null;
+    let currentPreset = 'ayer';
 
     let chartLlamadasSLAInstance = null;
     let chartSlaMensualInstance = null;
@@ -506,7 +515,69 @@
       intentarAutocarga();
     });
 
-    // Función para desplazar la pantalla al inicio de los filtros (ocultando el dropzone arriba)
+    // Obtener fecha de referencia según datos cargados o fecha del sistema
+    function getFechaReferencia() {
+      let maxTimestamp = 0;
+      const checkArr = (arr) => {
+        if (Array.isArray(arr)) {
+          arr.forEach(r => {
+            if (r && r.fecha && r.fecha instanceof Date && !isNaN(r.fecha.getTime())) {
+              if (r.fecha.getTime() > maxTimestamp) maxTimestamp = r.fecha.getTime();
+            }
+          });
+        }
+      };
+      checkArr(datosLlamadas);
+      checkArr(datosWise);
+      if (datosTurnos) {
+        checkArr(datosTurnos.creados);
+        checkArr(datosTurnos.asistieron);
+        checkArr(datosTurnos.noshow);
+      }
+      
+      const today = new Date();
+      if (maxTimestamp > 0) {
+        const maxDataDate = new Date(maxTimestamp);
+        if (maxDataDate > today) return maxDataDate;
+      }
+      return today;
+    }
+
+    // Determina dinámicamente los meses a comparar según la selección o datos
+    function obtenerMesesAComparar(fechaDesdeVal, fechaHastaVal, selectMesVal, listaMesesDisponibles) {
+      let mesSelKey = null;
+      if (selectMesVal) {
+        const refDate = getFechaReferencia();
+        const anio = refDate.getFullYear();
+        mesSelKey = `${anio}-${String(selectMesVal).padStart(2, '0')}`;
+      } else if (fechaDesdeVal) {
+        mesSelKey = fechaDesdeVal.substring(0, 7);
+      } else if (listaMesesDisponibles && listaMesesDisponibles.length > 0) {
+        mesSelKey = listaMesesDisponibles[listaMesesDisponibles.length - 1];
+      }
+
+      if (!mesSelKey) {
+        const today = getFechaReferencia();
+        mesSelKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      }
+
+      const parts = mesSelKey.split('-').map(Number);
+      const yyyy = parts[0];
+      const mm = parts[1];
+      
+      const prevDate = new Date(yyyy, mm - 2, 1);
+      const mesAntKey = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`;
+
+      const mesSelNombre = NOMBRES_MESES_CORTOS[mm - 1] || 'Mes';
+      const mesAntNombre = NOMBRES_MESES_CORTOS[prevDate.getMonth()] || 'Ant';
+
+      const mesSelFull = NOMBRES_MESES[mm - 1] || 'Mes Actual';
+      const mesAntFull = NOMBRES_MESES[prevDate.getMonth()] || 'Mes Anterior';
+
+      return { mesSelKey, mesAntKey, mesSelNombre, mesAntNombre, mesSelFull, mesAntFull };
+    }
+
+    // Función para desplazar la pantalla al inicio de los filtros
     function scrollToFilters() {
       setTimeout(() => {
         const filtersEl = document.getElementById('filtersSection');
@@ -611,7 +682,7 @@
             if (agNorm.includes('celeste cornejo') || agNorm.includes('rocio cornejo')) {
               agente = 'Rocio Cornejo';
             } else if (agNorm === 'sofia' || agNorm.includes('sofia montano') || agNorm.includes('sofia montaño')) {
-              agente = 'Sofía Montaño';
+              agente = 'Sofía Montano';
             }
 
             const esAtendida = String(row.QCI_ANSWERED || '').toLowerCase() === 'yes';
@@ -646,7 +717,7 @@
             if (usNorm.includes('celeste cornejo') || usNorm.includes('rocio cornejo')) {
               usuario = 'Rocio Cornejo';
             } else if (usNorm === 'sofia' || usNorm.includes('sofia montano') || usNorm.includes('sofia montaño')) {
-              usuario = 'Sofía Montaño';
+              usuario = 'Sofía Montano';
             }
 
             asesoresSet.add(usuario);
@@ -764,7 +835,8 @@
     }
 
     function setPreset(type) {
-      ['btnHoy', 'btnAyer', 'btnSemana', 'btnMesActual', 'btnMesAnterior'].forEach(id => {
+      currentPreset = type;
+      ['btnAyer', 'btnSemana', 'btnMesActual', 'btnMesAnterior'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all';
       });
@@ -772,13 +844,24 @@
       if (activeBtn) activeBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition-all';
 
       document.getElementById('selectMes').value = '';
-      let refDate = new Date(2026, 8, 30);
+      
+      let refDate = getFechaReferencia();
 
       let desde = new Date(refDate), hasta = new Date(refDate);
-      if (type === 'ayer') { desde.setDate(refDate.getDate() - 1); hasta.setDate(refDate.getDate() - 1); } 
-      else if (type === 'semana') desde.setDate(refDate.getDate() - 7);
-      else if (type === 'mes_actual') { desde = new Date(refDate.getFullYear(), refDate.getMonth(), 1); hasta = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0); } 
-      else if (type === 'mes_anterior') { desde = new Date(refDate.getFullYear(), refDate.getMonth() - 1, 1); hasta = new Date(refDate.getFullYear(), refDate.getMonth(), 0); }
+      if (type === 'hoy') {
+        // hoy
+      } else if (type === 'ayer') { 
+        desde.setDate(refDate.getDate() - 1); 
+        hasta.setDate(refDate.getDate() - 1); 
+      } else if (type === 'semana') {
+        desde.setDate(refDate.getDate() - 6);
+      } else if (type === 'mes_actual') { 
+        desde = new Date(refDate.getFullYear(), refDate.getMonth(), 1); 
+        hasta = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0); 
+      } else if (type === 'mes_anterior') { 
+        desde = new Date(refDate.getFullYear(), refDate.getMonth() - 1, 1); 
+        hasta = new Date(refDate.getFullYear(), refDate.getMonth(), 0); 
+      }
 
       document.getElementById('fechaDesde').value = formatDateKey(desde);
       document.getElementById('fechaHasta').value = formatDateKey(hasta);
@@ -786,13 +869,27 @@
     }
 
     function filtrarPorMes(mesNum) {
+      currentPreset = null;
+      ['btnAyer', 'btnSemana', 'btnMesActual', 'btnMesAnterior'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all';
+      });
       if (!mesNum) return;
-      const anio = 2026;
+      const refDate = getFechaReferencia();
+      const anio = refDate.getFullYear();
       document.getElementById('fechaDesde').value = formatDateKey(new Date(anio, parseInt(mesNum) - 1, 1));
       document.getElementById('fechaHasta').value = formatDateKey(new Date(anio, parseInt(mesNum), 0));
       procesarYActualizar();
     }
-    function applyCustomDates() { procesarYActualizar(); }
+
+    function applyCustomDates() { 
+      currentPreset = null;
+      ['btnAyer', 'btnSemana', 'btnMesActual', 'btnMesAnterior'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = 'px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all';
+      });
+      procesarYActualizar(); 
+    }
 
     function generateFullDateRange(fechaDesdeStr, fechaHastaStr, fallbackDataset) {
       let start = fechaDesdeStr ? new Date(fechaDesdeStr + 'T00:00:00') : null;
@@ -930,6 +1027,70 @@
         };
     }
 
+    function calcularDeltaTurnosNoShow(fTurnosAsistieron, fTurnosNoShow, activePreset) {
+      const titleEl = document.getElementById('kpiTurnosDeltaTitle');
+      const deltaEl = document.getElementById('kpiTurnosDelta');
+      
+      if (!titleEl || !deltaEl) return;
+
+      const fechaDesdeStr = document.getElementById('fechaDesde').value;
+      const fechaHastaStr = document.getElementById('fechaHasta').value;
+      const selectMesVal = document.getElementById('selectMes').value;
+
+      let noshowPctActual = 0;
+      let noshowPctPrevio = 0;
+      let tituloComparacion = "VARIACION CON EL MES ANTERIOR";
+
+      const getNoshowPctForRange = (startDate, endDate) => {
+        const sStr = formatDateKey(startDate);
+        const eStr = formatDateKey(endDate);
+        const asist = datosTurnos.asistieron.filter(r => r.fechaStr >= sStr && r.fechaStr <= eStr).length;
+        const ns = datosTurnos.noshow.filter(r => r.fechaStr >= sStr && r.fechaStr <= eStr).length;
+        const tot = asist + ns;
+        return tot > 0 ? (ns / tot) * 100 : 0;
+      };
+
+      const refDate = getFechaReferencia();
+
+      if (activePreset === 'hoy') {
+        tituloComparacion = "VARIACION CON AYER";
+        const hoy = new Date(refDate);
+        const ayer = new Date(refDate); ayer.setDate(ayer.getDate() - 1);
+        noshowPctActual = getNoshowPctForRange(hoy, hoy);
+        noshowPctPrevio = getNoshowPctForRange(ayer, ayer);
+      } else if (activePreset === 'ayer') {
+        tituloComparacion = "VARIACION CON ANTES DE AYER";
+        const ayer = new Date(refDate); ayer.setDate(ayer.getDate() - 1);
+        const antesAyer = new Date(refDate); antesAyer.setDate(antesAyer.getDate() - 2);
+        noshowPctActual = getNoshowPctForRange(ayer, ayer);
+        noshowPctPrevio = getNoshowPctForRange(antesAyer, antesAyer);
+      } else {
+        const infoMeses = obtenerMesesAComparar(fechaDesdeStr, fechaHastaStr, selectMesVal, null);
+        tituloComparacion = `VARIACION CON ${infoMeses.mesAntFull.toUpperCase()}`;
+
+        const getNoshowPctForMonth = (mesKey) => {
+          const asist = datosTurnos.asistieron.filter(r => r.fechaStr.startsWith(mesKey)).length;
+          const ns = datosTurnos.noshow.filter(r => r.fechaStr.startsWith(mesKey)).length;
+          const tot = asist + ns;
+          return tot > 0 ? (ns / tot) * 100 : 0;
+        };
+
+        noshowPctActual = getNoshowPctForMonth(infoMeses.mesSelKey);
+        noshowPctPrevio = getNoshowPctForMonth(infoMeses.mesAntKey);
+      }
+
+      const diff = (noshowPctActual - noshowPctPrevio).toFixed(1);
+      titleEl.innerText = tituloComparacion;
+
+      if (diff <= 0) {
+        deltaEl.className = 'text-2xl font-extrabold text-emerald-600 my-1';
+        deltaEl.innerText = diff + ' pts';
+      } else {
+        deltaEl.className = 'text-2xl font-extrabold text-rose-600 my-1';
+        deltaEl.innerText = '+' + diff + ' pts';
+      }
+    }
+
     function procesarYActualizar() {
       const fechaDesde = document.getElementById('fechaDesde').value ? new Date(document.getElementById('fechaDesde').value + 'T00:00:00') : null;
       const fechaHasta = document.getElementById('fechaHasta').value ? new Date(document.getElementById('fechaHasta').value + 'T23:59:59') : null;
@@ -990,15 +1151,7 @@
       document.getElementById('kpiTurnosNoShow').innerText = noShowPct + '%';
       document.getElementById('kpiTurnosNoShowPct').innerText = `${totalNoShow} turnos`;
 
-      const turnosHistorico = agruparTurnosPorMes(datosTurnos);
-      if (turnosHistorico.meses.length >= 2) {
-          const last = turnosHistorico.noshowPct[turnosHistorico.noshowPct.length - 1];
-          const prev = turnosHistorico.noshowPct[turnosHistorico.noshowPct.length - 2];
-          const diff = (last - prev).toFixed(1);
-          const el = document.getElementById('kpiTurnosDelta');
-          if (diff <= 0) { el.className = 'text-2xl font-extrabold text-emerald-600 my-1'; el.innerText = diff + ' pts'; } 
-          else { el.className = 'text-2xl font-extrabold text-rose-600 my-1'; el.innerText = '+' + diff + ' pts'; }
-      }
+      calcularDeltaTurnosNoShow(fTurnosAsistieron, fTurnosNoShow, currentPreset);
 
       renderChartsTab1(fLlamadas, fWise);
       renderChartsTab2(fLlamadas, fWise);
@@ -1010,6 +1163,7 @@
     function renderChartsTab1(llamadasData, wiseData) {
       const fDesde = document.getElementById('fechaDesde').value;
       const fHasta = document.getElementById('fechaHasta').value;
+      const selectMes = document.getElementById('selectMes').value;
 
       const agrupadoLlamadas = agruparLlamadasPorDia(llamadasData, fDesde, fHasta);
       
@@ -1053,11 +1207,26 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false, min: 0, max: 100 }, x: { grid: { display: false } } } }
       });
 
-      if (mensualSLA.slaPctList.length >= 2) {
-        const diff = (mensualSLA.slaPctList[mensualSLA.slaPctList.length - 1] - mensualSLA.slaPctList[mensualSLA.slaPctList.length - 2]).toFixed(1);
-        const el = document.getElementById('slaDeltaValue');
-        el.className = diff >= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
-        el.innerText = (diff >= 0 ? '+' : '') + diff + '%';
+      const infoMeses = obtenerMesesAComparar(fDesde, fHasta, selectMes, mensualSLA.meses);
+      
+      // SLA Delta
+      const slaLabelEl = document.getElementById('slaDeltaLabel');
+      if (slaLabelEl) slaLabelEl.innerText = `SLA ${infoMeses.mesSelNombre} vs ${infoMeses.mesAntNombre}:`;
+
+      const getSlaPct = (mesKey) => {
+        const idx = mensualSLA.meses.indexOf(mesKey);
+        return idx !== -1 ? parseFloat(mensualSLA.slaPctList[idx]) : null;
+      };
+      const slaSel = getSlaPct(infoMeses.mesSelKey);
+      const slaPrev = getSlaPct(infoMeses.mesAntKey);
+
+      const slaValEl = document.getElementById('slaDeltaValue');
+      if (slaSel !== null && slaPrev !== null && slaValEl) {
+        const diff = (slaSel - slaPrev).toFixed(1);
+        slaValEl.className = diff >= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+        slaValEl.innerText = (diff >= 0 ? '+' : '') + diff + '%';
+      } else if (slaValEl) {
+        slaValEl.innerText = '-';
       }
 
       if (chartAtendidasAbandonadasInstance) chartAtendidasAbandonadasInstance.destroy();
@@ -1079,15 +1248,29 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { x: { stacked: true }, y: { stacked: true, display: false } } }
       });
 
-      if (mensualSLA.meses.length >= 2) {
-        const lAband = mensualSLA.abandonadas[mensualSLA.abandonadas.length - 1], lAtend = mensualSLA.atendidas[mensualSLA.atendidas.length - 1];
-        const pAband = mensualSLA.abandonadas[mensualSLA.abandonadas.length - 2], pAtend = mensualSLA.atendidas[mensualSLA.atendidas.length - 2];
-        const lPct = (lAtend+lAband) > 0 ? (lAband/(lAtend+lAband)*100) : 0;
-        const pPct = (pAtend+pAband) > 0 ? (pAband/(pAtend+pAband)*100) : 0;
-        const diff = (lPct - pPct).toFixed(1);
-        const el = document.getElementById('abandDeltaValue');
-        el.className = diff <= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
-        el.innerText = (diff > 0 ? '+' : '') + diff + '%';
+      // Abandono % Delta
+      const abandLabelEl = document.getElementById('abandDeltaLabel');
+      if (abandLabelEl) abandLabelEl.innerText = `% Abandono ${infoMeses.mesSelNombre} vs ${infoMeses.mesAntNombre}:`;
+
+      const getAbandPct = (mesKey) => {
+        const idx = mensualSLA.meses.indexOf(mesKey);
+        if (idx !== -1) {
+          const at = mensualSLA.atendidas[idx];
+          const ab = mensualSLA.abandonadas[idx];
+          return (at + ab) > 0 ? (ab / (at + ab)) * 100 : null;
+        }
+        return null;
+      };
+      const abandSel = getAbandPct(infoMeses.mesSelKey);
+      const abandPrev = getAbandPct(infoMeses.mesAntKey);
+
+      const abandValEl = document.getElementById('abandDeltaValue');
+      if (abandSel !== null && abandPrev !== null && abandValEl) {
+        const diff = (abandSel - abandPrev).toFixed(1);
+        abandValEl.className = diff <= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+        abandValEl.innerText = (diff > 0 ? '+' : '') + diff + '%';
+      } else if (abandValEl) {
+        abandValEl.innerText = '-';
       }
 
       const agrupadoWise = agruparWisePorDia(wiseData, fDesde, fHasta);
@@ -1131,19 +1314,31 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { display: false } } }
       });
 
-      if (agrupadoWiseMensual.ahtPromList.length >= 2) {
-        const lAHT = agrupadoWiseMensual.ahtPromList[agrupadoWiseMensual.ahtPromList.length - 1] / 60;
-        const pAHT = agrupadoWiseMensual.ahtPromList[agrupadoWiseMensual.ahtPromList.length - 2] / 60;
-        const diff = (lAHT - pAHT).toFixed(1);
-        const el = document.getElementById('ahtDeltaValue');
-        el.className = diff <= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
-        el.innerText = (diff > 0 ? '+' : '') + diff + ' min';
+      // AHT Delta
+      const ahtLabelEl = document.getElementById('ahtDeltaLabel');
+      if (ahtLabelEl) ahtLabelEl.innerText = `AHT ${infoMeses.mesSelNombre} vs ${infoMeses.mesAntNombre}:`;
+
+      const getAhtMin = (mesKey) => {
+        const idx = agrupadoWiseMensual.meses.indexOf(mesKey);
+        return idx !== -1 ? (agrupadoWiseMensual.ahtPromList[idx] / 60) : null;
+      };
+      const ahtSel = getAhtMin(infoMeses.mesSelKey);
+      const ahtPrev = getAhtMin(infoMeses.mesAntKey);
+
+      const ahtValEl = document.getElementById('ahtDeltaValue');
+      if (ahtSel !== null && ahtPrev !== null && ahtValEl) {
+        const diff = (ahtSel - ahtPrev).toFixed(1);
+        ahtValEl.className = diff <= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+        ahtValEl.innerText = (diff > 0 ? '+' : '') + diff + ' min';
+      } else if (ahtValEl) {
+        ahtValEl.innerText = '-';
       }
     }
 
     function renderChartsTab2(llamadasData, wiseData) {
       const fDesde = document.getElementById('fechaDesde').value;
       const fHasta = document.getElementById('fechaHasta').value;
+      const selectMes = document.getElementById('selectMes').value;
 
       const llamadasWiseAdvisors = llamadasData.filter(r => r.agente && asesoresWiseValidos.includes(r.agente));
       const fullDates = generateFullDateRange(fDesde, fHasta, [llamadasWiseAdvisors, wiseData]);
@@ -1235,15 +1430,30 @@
         }
       });
 
-      if (sortedMonths.length >= 2) {
-        const lM = sortedMonths[sortedMonths.length - 1], pM = sortedMonths[sortedMonths.length - 2];
-        const lTot = monthsMap.get(lM).llamadas + monthsMap.get(lM).wise, pTot = monthsMap.get(pM).llamadas + monthsMap.get(pM).wise;
-        const lPct = lTot > 0 ? (monthsMap.get(lM).llamadas / lTot * 100) : 0;
-        const pPct = pTot > 0 ? (monthsMap.get(pM).llamadas / pTot * 100) : 0;
-        const diff = (lPct - pPct).toFixed(1);
-        const el = document.getElementById('tab2DeltaValue');
-        el.className = diff >= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
-        el.innerText = (diff >= 0 ? '+' : '') + diff + ' pts';
+      // Tab 2 Delta
+      const infoMeses = obtenerMesesAComparar(fDesde, fHasta, selectMes, sortedMonths);
+      const tab2LabelEl = document.getElementById('tab2DeltaLabel');
+      if (tab2LabelEl) tab2LabelEl.innerText = `% Llamadas ${infoMeses.mesSelNombre} vs ${infoMeses.mesAntNombre}:`;
+
+      const getLlamadasPct = (mesKey) => {
+        if (monthsMap.has(mesKey)) {
+          const data = monthsMap.get(mesKey);
+          const tot = data.llamadas + data.wise;
+          return tot > 0 ? (data.llamadas / tot) * 100 : null;
+        }
+        return null;
+      };
+
+      const pctSel = getLlamadasPct(infoMeses.mesSelKey);
+      const pctPrev = getLlamadasPct(infoMeses.mesAntKey);
+
+      const tab2ValEl = document.getElementById('tab2DeltaValue');
+      if (pctSel !== null && pctPrev !== null && tab2ValEl) {
+        const diff = (pctSel - pctPrev).toFixed(1);
+        tab2ValEl.className = diff >= 0 ? 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700' : 'text-xs font-extrabold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700';
+        tab2ValEl.innerText = (diff >= 0 ? '+' : '') + diff + ' pts';
+      } else if (tab2ValEl) {
+        tab2ValEl.innerText = '-';
       }
     }
 
